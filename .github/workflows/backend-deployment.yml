@@ -1,0 +1,42 @@
+# .github/workflows/backend-deployment.yml
+
+# Name of the workflow, which will be displayed in the GitHub Actions tab.
+name: Frontend Deployment to Test Environment 
+
+# This workflow triggers on any push event to the 'test' branch.
+on:
+  push:
+    branches:
+      - main 
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel.
+jobs:
+  build_and_deploy:
+    # CRITICAL: This tells GitHub to run this job on your own server
+    # that has been configured as a self-hosted runner.
+    runs-on: self-hosted
+
+    # A sequence of tasks called 'steps' that will be executed as part of the job.
+    steps:
+      # Step 1: Check out the repository code
+      # This action checks-out your repository's code onto your VPS runner.
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Build and Deploy using Docker Compose
+      # This single step now handles both building the new images and deploying them.
+      # The commands are run directly on your VPS.
+      - name: Build and Deploy Services
+        run: |
+          # The 'build' command rebuilds the images for any services that have changed.
+          echo "Building local Docker images..."
+          docker compose build --no-cache
+
+          # The 'up -d' command performs a rolling update, recreating only the containers
+          # for services whose images were just rebuilt.
+          echo "Deploying new versions..."
+          docker compose up -d --remove-orphans
+          
+          # Optional: Clean up old, unused Docker images to save disk space
+          echo "Cleaning up old Docker images..."
+          docker image prune -f 

@@ -1,0 +1,4 @@
+node_modules
+.next
+fail2fixcustomer.tar.gz
+*.tar.gz

@@ -14,73 +14,79 @@ type RouteContext = {
  * so the session is first-party on the marketing host.
  */
 async function proxyAuth(request: Request, context: RouteContext) {
-  const { path } = await context.params;
-  const incoming = new URL(request.url);
-  const targetPath = path?.length ? path.join("/") : "";
-  const target = `${API_URL.replace(/\/$/, "")}/api/auth/${targetPath}${incoming.search}`;
+  try {
+    const { path } = await context.params;
+    const incoming = new URL(request.url);
+    const targetPath = path?.length ? path.join("/") : "";
+    const apiBase = API_URL.replace(/\/$/, "");
+    const target = `${apiBase}/api/auth/${targetPath}${incoming.search}`;
 
-  const headers = new Headers();
-  const forwardHeaders = [
-    "content-type",
-    "cookie",
-    "authorization",
-    "origin",
-    "user-agent",
-    "accept",
-    "accept-language",
-  ];
-  for (const name of forwardHeaders) {
-    const value = request.headers.get(name);
-    if (value) headers.set(name, value);
-  }
+    if (!apiBase || apiBase.includes("localhost")) {
+      console.error("[auth-proxy] NEXT_PUBLIC_API_URL missing or localhost:", apiBase);
+    }
 
-  // Tell Better Auth the request is coming from the marketing origin
-  headers.set("origin", incoming.origin);
-  headers.set("x-forwarded-host", incoming.host);
-  headers.set("x-forwarded-proto", incoming.protocol.replace(":", ""));
+    const headers = new Headers();
+    for (const name of ["content-type", "cookie", "authorization", "user-agent", "accept", "accept-language"]) {
+      const value = request.headers.get(name);
+      if (value) headers.set(name, value);
+    }
 
-  const init: RequestInit = {
-    method: request.method,
-    headers,
-    redirect: "manual",
-  };
+    // Better Auth trust host / CORS: use marketing origin, not the backend host
+    headers.set("origin", incoming.origin);
+    headers.set("x-forwarded-host", incoming.host);
+    headers.set("x-forwarded-proto", "https");
 
-  if (request.method !== "GET" && request.method !== "HEAD") {
-    init.body = await request.arrayBuffer();
-  }
+    const init: RequestInit = {
+      method: request.method,
+      headers,
+      redirect: "manual",
+    };
 
-  const upstream = await fetch(target, init);
-  const responseHeaders = new Headers();
+    if (request.method !== "GET" && request.method !== "HEAD") {
+      init.body = Buffer.from(await request.arrayBuffer());
+    }
 
-  upstream.headers.forEach((value, key) => {
-    const lower = key.toLowerCase();
-    if (lower === "transfer-encoding" || lower === "content-encoding") return;
-    if (lower === "set-cookie") return; // handled below
-    responseHeaders.set(key, value);
-  });
+    const upstream = await fetch(target, init);
+    const responseHeaders = new Headers();
+    const body = await upstream.arrayBuffer();
 
-  // Re-host session cookies on this domain (strip Domain=… from backend)
-  const setCookies =
-    typeof upstream.headers.getSetCookie === "function"
-      ? upstream.headers.getSetCookie()
-      : upstream.headers.get("set-cookie")
-        ? [upstream.headers.get("set-cookie")!]
+    upstream.headers.forEach((value, key) => {
+      const lower = key.toLowerCase();
+      if (
+        lower === "transfer-encoding" ||
+        lower === "content-encoding" ||
+        lower === "content-length" ||
+        lower === "set-cookie"
+      ) {
+        return;
+      }
+      responseHeaders.set(key, value);
+    });
+
+    const setCookies =
+      typeof upstream.headers.getSetCookie === "function"
+        ? upstream.headers.getSetCookie()
         : [];
 
-  for (const cookie of setCookies) {
-    const rewritten = cookie
-      .split(";")
-      .map((part) => part.trim())
-      .filter((part) => !/^domain=/i.test(part))
-      .join("; ");
-    responseHeaders.append("set-cookie", rewritten);
-  }
+    for (const cookie of setCookies) {
+      const rewritten = cookie
+        .split(";")
+        .map((part) => part.trim())
+        .filter((part) => !/^domain=/i.test(part))
+        .join("; ");
+      responseHeaders.append("set-cookie", rewritten);
+    }
 
-  return new Response(upstream.body, {
-    status: upstream.status,
-    statusText: upstream.statusText,
-    headers: responseHeaders,
-  });
+    return new Response(body, {
+      status: upstream.status,
+      statusText: upstream.statusText,
+      headers: responseHeaders,
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Auth proxy failed";
+    console.error("[auth-proxy]", message, error);
+    return Response.json({ error: "AUTH_PROXY_FAILED", message }, { status: 502 });
+  }
 }
 
 export async function GET(request: Request, context: RouteContext) {

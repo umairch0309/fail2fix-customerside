@@ -71,35 +71,41 @@ export function AppSidebar() {
             <Image
               src={FAIL2FIX_LOGO}
               alt="Fail2Fix"
-              width={100}
-              height={40}
+              width={120}
+              height={48}
               priority
+              className="object-contain"
             />
           </Link>
           <NotificationSheet />
         </div>
       </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
+      <SidebarContent className="mx-1 flex flex-col gap-3">
+        <SidebarGroup className="brand-gradient-bg rounded-2xl p-3 shadow-sm">
           <SidebarGroupContent>
-            <div className="mb-4 px-2">
+            <div className="mb-3">
               <SearchCommand />
             </div>
-            <SidebarMenu className="gap-2 p-2">
+            <SidebarMenu className="gap-1">
               {menuItems.map((item) => {
                 const isActive = pathname === item.url || pathname.startsWith(`${item.url}/`);
                 return (
                   <SidebarMenuItem key={item.title}>
-                    <Link href={item.url} className={`relative flex items-center gap-2 pl-3.5 py-2.5 font-medium rounded-lg ${isActive ? "text-[#494F57]" : "text-[#81868C]"}`}>
+                    <Link
+                      href={item.url}
+                      className={`relative flex items-center gap-2 pl-3.5 py-2.5 font-medium rounded-lg transition-colors ${
+                        isActive ? "text-[#14213d]" : "text-white/90 hover:text-white"
+                      }`}
+                    >
                       {isActive && (
                         <motion.div
                           layoutId="sidebar-active-bg"
-                          className="absolute inset-0 bg-white border border-[#E4E4E4] rounded-[10px]"
+                          className="absolute inset-0 bg-white rounded-[10px] shadow-sm"
                           transition={{ type: "spring", stiffness: 350, damping: 30, mass: 0.8 }}
                         />
                       )}
                       <span className="relative z-10">
-                        <item.icon color={isActive ? "#494F57" : "#81868C"} />
+                        <item.icon color={isActive ? "#14213d" : "#ffffff"} />
                       </span>
                       <span className="relative z-10">{item.title}</span>
                     </Link>

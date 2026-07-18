@@ -40,7 +40,7 @@ export default function AuthFooterLink() {
   const displayLink = link || defaultLink;
 
   return (
-    <p className="text-sm text-center text-[#838383] absolute bottom-8 left-0 right-0">
+    <p className="text-sm text-center text-[#838383]">
       {displayLink.text}{' '}
       <Link href={displayLink.href} className="text-[#F15D1E] font-medium hover:underline">
         {displayLink.linkText}

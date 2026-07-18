@@ -28,18 +28,18 @@ export function DashboardHeader() {
               <span key={index} className="flex items-center gap-1">
                 {index > 0 && <ChevronRight className="h-4 w-4" />}
                 {crumb.href ? (
-                  <Link href={crumb.href} className="hover:text-[#494F57]">
+                  <Link href={crumb.href} className="hover:text-[#14213d]">
                     {crumb.label}
                   </Link>
                 ) : (
-                  <span className="text-[#494F57]">{crumb.label}</span>
+                  <span className="text-[#14213d]">{crumb.label}</span>
                 )}
               </span>
             ))}
           </nav>
         )}
         {pageTitle && (
-          <h1 className="text-base md:text-lg font-semibold text-[#494F57]">{pageTitle}</h1>
+          <h1 className="text-base md:text-lg font-semibold text-[#14213d]">{pageTitle}</h1>
         )}
         {pageDescription && (
           <p className="text-xs md:text-sm text-[#97999D] tracking-[-0.1px] font-medium">{pageDescription}</p>
@@ -49,7 +49,7 @@ export function DashboardHeader() {
       {showHeaderButton && headerButton && (
         <Button
           onClick={headerButton.onClick}
-          className="bg-[#F15D1E] hover:bg-[#d9531a] text-white rounded-full px-4 py-2 md:py-2.5 gap-1 text-sm self-start sm:self-auto"
+          className="bg-[#ff8c32] hover:bg-[#e06f12] text-white rounded-full px-4 py-2 md:py-2.5 gap-1 text-sm self-start sm:self-auto shadow-[inset_0_0_0_2px_#ff8c32]"
         >
           <Plus className="h-4 w-4" />
           {headerButton.label}

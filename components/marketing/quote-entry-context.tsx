@@ -7,7 +7,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { PopupContactForm } from "@/components/marketing/popup-contact-form";
+import dynamic from "next/dynamic";
+
+const PopupContactForm = dynamic(
+  () =>
+    import("@/components/marketing/popup-contact-form").then((mod) => ({
+      default: mod.PopupContactForm,
+    })),
+  { ssr: false },
+);
 
 interface QuoteEntryContextValue {
   vrm: string;
@@ -21,10 +29,12 @@ const QuoteEntryContext = createContext<QuoteEntryContextValue | null>(null);
 
 export function QuoteEntryProvider({ children }: { children: ReactNode }) {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [hasOpenedQuoteModal, setHasOpenedQuoteModal] = useState(false);
   const [postcode, setPostcode] = useState("");
   const [vrm, setVrm] = useState("");
 
   const openQuoteModal = useCallback(() => {
+    setHasOpenedQuoteModal(true);
     setIsQuoteModalOpen(true);
   }, []);
 
@@ -33,12 +43,14 @@ export function QuoteEntryProvider({ children }: { children: ReactNode }) {
       value={{ vrm, setVrm, postcode, setPostcode, openQuoteModal }}
     >
       {children}
-      <PopupContactForm
-        open={isQuoteModalOpen}
-        onOpenChange={setIsQuoteModalOpen}
-        initialPostcode={postcode}
-        initialVrm={vrm}
-      />
+      {hasOpenedQuoteModal ? (
+        <PopupContactForm
+          open={isQuoteModalOpen}
+          onOpenChange={setIsQuoteModalOpen}
+          initialPostcode={postcode}
+          initialVrm={vrm}
+        />
+      ) : null}
     </QuoteEntryContext.Provider>
   );
 }

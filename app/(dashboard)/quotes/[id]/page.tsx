@@ -1,13 +1,26 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Clock, AlertTriangle, XCircle } from "lucide-react";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useQuote } from "@/hooks/use-quotes";
 import { InvoicePreview } from "@/components/quote/invoice-preview";
-import { QuoteActions } from "@/components/quote/quote-actions";
 import { quoteStatusConfig } from "@/types/quote";
+
+const QuoteActions = dynamic(
+  () =>
+    import("@/components/quote/quote-actions").then((mod) => ({
+      default: mod.QuoteActions,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-48 animate-pulse rounded-2xl bg-gray-100" />
+    ),
+  },
+);
 
 export default function QuoteDetailPage() {
   const params = useParams();

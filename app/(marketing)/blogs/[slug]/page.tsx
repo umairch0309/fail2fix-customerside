@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
 import SingleBlogContent from "@/app/sections/blogs/singleblog/SingleBlogContent";
-import Getaquote from "@/app/sections/home/getaquote";
 import { BLOG_CMS_URL } from "@/lib/constants";
 import type { Blog, BlogsResponse, BlogMedia } from "@/types/blog";
+
+const Getaquote = dynamic(() => import("@/app/sections/home/getaquote"));
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -19,7 +21,7 @@ async function getBlogBySlug(slug: string): Promise<Blog | null> {
     });
 
     const res = await fetch(`${BLOG_CMS_URL}/api/blogs?${params}`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 300, tags: ["blogs", `blog:${slug}`] },
     });
 
     if (!res.ok) return null;
@@ -40,7 +42,7 @@ async function getAllBlogSlugs(): Promise<string[]> {
     });
 
     const res = await fetch(`${BLOG_CMS_URL}/api/blogs?${params}`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 300, tags: ["blogs"] },
     });
 
     if (!res.ok) return [];

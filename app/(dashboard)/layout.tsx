@@ -22,7 +22,7 @@ export default async function DashboardLayout({
       <div className="h-screen bg-[#F4F4F4] p-2 md:p-4 flex overflow-hidden">
         <SidebarProvider className="h-full">
           <AppSidebar />
-          <main className="flex-1 min-w-0 bg-white rounded-xl md:rounded-3xl border border-[#EAEAEA] flex flex-col overflow-hidden">
+          <main className="flex-1 min-w-0 bg-white rounded-xl border border-[#EAEAEA] flex flex-col overflow-hidden">
             <DashboardHeader />
             <div className="flex-1 min-h-0 overflow-auto">
               {children}

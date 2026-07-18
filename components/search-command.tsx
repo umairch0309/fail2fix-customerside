@@ -56,7 +56,7 @@ export function SearchCommand() {
         className="relative w-full flex items-center"
       >
         <Search className="absolute left-3 h-4 w-4 text-[#686868]" />
-        <div className="w-full pl-10 pr-3 py-2.5 bg-[#EAEAEA] border border-[#E4E4E4] rounded-lg text-left text-sm text-[#686868]">
+        <div className="w-full pl-10 pr-3 py-2.5 bg-white border border-[#E4E4E4] rounded-lg text-left text-sm text-[#686868]">
           Search
         </div>
         <kbd className="absolute right-3 pointer-events-none hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border border-[#E4E4E4] bg-white px-1.5 font-mono text-[10px] font-medium text-[#686868]">

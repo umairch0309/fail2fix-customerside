@@ -30,7 +30,7 @@ export default function OverviewPage() {
   const { data: requests = [], isLoading } = useRequests();
 
   // Fetch dashboard stats
-  const { data: stats } = useMyDashboardStats();
+  const { data: stats, isLoading: statsLoading } = useMyDashboardStats();
 
   // Get user info from session
   const { data: session } = useSession();
@@ -54,13 +54,13 @@ export default function OverviewPage() {
   }, [setHeader]);
 
   return (
-    <div className="space-y-4 px-3 md:px-5 pb-3 md:pb-4">
+    <div className="space-y-6 px-3 md:px-5 pb-3 md:pb-4">
       {/* Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MiniStatCard title="My Requests" value={String(stats?.requests ?? 0)} />
-        <MiniStatCard title="Quotes Received" value={String(stats?.quotesReceived ?? 0)} />
-        <MiniStatCard title="Active Orders" value={String(stats?.activeOrders ?? 0)} />
-        <MiniStatCard title="Pending Payments" value={String(stats?.pendingPayments ?? 0)} />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <MiniStatCard title="My Requests" value={stats?.requests ?? 0} isLoading={statsLoading} delay={0} />
+        <MiniStatCard title="Quotes Received" value={stats?.quotesReceived ?? 0} isLoading={statsLoading} delay={0.05} />
+        <MiniStatCard title="Active Orders" value={stats?.activeOrders ?? 0} isLoading={statsLoading} delay={0.1} />
+        <MiniStatCard title="Pending Payments" value={stats?.pendingPayments ?? 0} isLoading={statsLoading} delay={0.15} />
       </div>
 
       {/* Recent Requests Table */}

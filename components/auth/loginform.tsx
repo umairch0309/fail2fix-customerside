@@ -101,7 +101,7 @@ const Loginform = () => {
   };
 
   return (
-    <div className="w-full max-w-md space-y-6">
+    <div className="w-full space-y-6">
       <HeadingGroup
         heading="Welcome Back"
         description="Sign in to manage your MOT repairs and get instant garage quotes"

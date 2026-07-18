@@ -15,7 +15,7 @@ export default function AuthLayoutShell({
   const router = useRouter();
   return (
     <Padding className="h-screen grid grid-cols-1 lg:grid-cols-[minmax(400px,560px)_1fr] py-3 gap-4">
-      <div className="flex flex-col p-8 overflow-auto bg-[#F5F5F5] rounded-xl relative">
+      <div className="flex flex-col p-8 overflow-auto bg-[#F5F5F5] rounded-xl">
         <Image
           onClick={() => router.push("/")}
           src={FAIL2FIX_LOGO}
@@ -25,10 +25,12 @@ export default function AuthLayoutShell({
           className="h-11 w-auto cursor-pointer object-contain object-left sm:h-12"
         />
 
-        <div className="flex-1 flex items-center justify-center">
-          {children}
+        <div className="flex-1 flex items-center justify-center py-6">
+          <div className="flex w-full max-w-md flex-col items-center gap-6">
+            {children}
+            <AuthFooterLink />
+          </div>
         </div>
-        <AuthFooterLink />
       </div>
       <AuthImage />
     </Padding>

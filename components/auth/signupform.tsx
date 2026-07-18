@@ -72,7 +72,7 @@ const Signupform = () => {
   }
 
   return (
-    <div className="w-full max-w-md space-y-6">
+    <div className="w-full space-y-6">
        <HeadingGroup
          heading="Create Account"
          description="Sign up to get MOT repair quotes from trusted garages"

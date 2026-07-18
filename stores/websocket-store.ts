@@ -271,7 +271,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   disconnect: () => {
     const { socket } = get();
     clearReconnectTimer();
-    reconnectAttempts = MAX_RECONNECT_ATTEMPTS; // prevent auto-reconnect after intentional disconnect
+    reconnectAttempts = 0;
     if (socket) {
       socket.close();
     }

@@ -30,6 +30,7 @@ import {
   hasRecentClientEnquiry,
   markClientEnquirySubmitted,
 } from "@/lib/enquiry-submit-guard";
+import { validateUkPostcode, isValidUkPostcode } from "@/lib/uk-postcode";
 import type { VrmLookupResponse, MotDefectWithPricing } from "@/types/vehicle";
 import { defectTypeConfig } from "@/types/vehicle";
 
@@ -157,6 +158,11 @@ export function PopupContactForm({
     if (!defectsData?.vehicle || selectedIds.size === 0) return;
 
     const formValues = form.state.values;
+
+    if (!isValidUkPostcode(formValues.postcode)) {
+      setStep(1);
+      return;
+    }
 
     if (hasRecentClientEnquiry(formValues.email, formValues.vrm)) {
       setSuccessMessage(
@@ -516,10 +522,11 @@ export function PopupContactForm({
                     <form.Field
                       name="postcode"
                       validators={{
-                        onBlur: ({ value }) => {
-                          if (!value.trim()) return "Postcode is required";
-                          if (value.trim().length < 5) return "Please enter a valid postcode";
-                          return undefined;
+                        onBlur: ({ value }) => validateUkPostcode(value),
+                        onChange: ({ value }) => {
+                          // Only show format errors once user has typed enough
+                          if (value.trim().length < 5) return undefined;
+                          return validateUkPostcode(value);
                         },
                       }}
                       children={(field) => (
@@ -536,6 +543,8 @@ export function PopupContactForm({
                             }
                             type="text"
                             placeholder="SW1A 1AA"
+                            maxLength={10}
+                            autoComplete="postal-code"
                             disabled={isBusy}
                             className={`rounded-[14px] py-6 bg-white w-full placeholder:text-[#ACACAC] placeholder:text-[0.9rem] focus:border-[#FF8E5E]/60 focus-visible:ring-[#FF8E5E]/30 ${
                               field.state.meta.errors.length > 0
@@ -784,7 +793,7 @@ export function PopupContactForm({
                       values.name.trim() !== "" &&
                       values.email.trim() !== "" &&
                       values.phone.trim() !== "" &&
-                      values.postcode.trim() !== "" &&
+                      isValidUkPostcode(values.postcode) &&
                       values.vrm.trim() !== "" &&
                       values.agreeTerms === true;
 

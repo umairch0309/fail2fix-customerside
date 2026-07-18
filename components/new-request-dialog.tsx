@@ -26,12 +26,17 @@ import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field
 import * as FileUpload from "@/components/ui/file-upload";
 import type { VrmLookupResponse } from "@/types/vehicle";
 import { defectTypeConfig } from "@/types/vehicle";
+import { UK_POSTCODE_REGEX } from "@/lib/uk-postcode";
 
 const requestSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters."),
   email: z.string().email("Please enter a valid email address."),
   phone: z.string().min(10, "Please enter a valid phone number."),
-  postcode: z.string().min(3, "Please enter a valid postcode."),
+  postcode: z
+    .string()
+    .trim()
+    .max(10, "Postcode must be less than 10 characters")
+    .regex(UK_POSTCODE_REGEX, "Please enter a valid UK postcode (e.g. SW1A 1AA)"),
   vrm: z.string().min(2, "Please enter a valid registration number."),
   notes: z.string(),
   authorized: z.boolean().refine((val) => val === true, {
@@ -108,12 +113,12 @@ export function NewRequestDialog({
       authorized: false as boolean,
     },
     validators: {
-      onChange: requestSchema,
       onSubmit: requestSchema,
     },
     onSubmit: async ({ value }) => {
-      if (vrmLookup.isPending) return;
+      if (vrmLookup.isPending || isSubmittingRef.current) return;
 
+      isSubmittingRef.current = true;
       vrmLookup.mutate(value.vrm, {
         onSuccess: (data) => {
           onVehicleLookupSuccess?.(data, {
@@ -127,6 +132,9 @@ export function NewRequestDialog({
           setDefectsData(data);
           setSelectedIds(new Set());
           setStep(2);
+        },
+        onSettled: () => {
+          isSubmittingRef.current = false;
         },
       });
     },

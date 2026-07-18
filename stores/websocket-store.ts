@@ -53,8 +53,39 @@ export type WebSocketActions = {
 export type WebSocketStore = WebSocketState & WebSocketActions;
 
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+let reconnectAttempts = 0;
+const MAX_RECONNECT_ATTEMPTS = 5;
+const BASE_RECONNECT_MS = 3000;
 
 let typingTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function clearReconnectTimer() {
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+}
+
+function scheduleReconnect(connect: () => void) {
+  if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
+    console.warn(
+      "[WS] Giving up reconnect after",
+      MAX_RECONNECT_ATTEMPTS,
+      "attempts (serverless hosts often lack WebSocket support)",
+    );
+    return;
+  }
+
+  if (reconnectTimer) return;
+
+  const delay = BASE_RECONNECT_MS * Math.pow(2, reconnectAttempts);
+  reconnectAttempts += 1;
+  reconnectTimer = setTimeout(() => {
+    reconnectTimer = null;
+    connect();
+  }, delay);
+}
+
 
 export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   // Initial state
@@ -89,11 +120,9 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     const ws = new WebSocket(WS_URL);
 
     ws.onopen = () => {
+      reconnectAttempts = 0;
       set({ state: "connected", socket: ws });
-      if (reconnectTimer) {
-        clearTimeout(reconnectTimer);
-        reconnectTimer = null;
-      }
+      clearReconnectTimer();
     };
 
     ws.onmessage = (event) => {
@@ -227,14 +256,8 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
     ws.onclose = () => {
       set({ state: "disconnected", socket: null, connectionId: null });
-
-      // Auto reconnect
-      if (!reconnectTimer) {
-        reconnectTimer = setTimeout(() => {
-          reconnectTimer = null;
-          get().connect();
-        }, 3000);
-      }
+      // Back off — endless reconnects on Vercel burn the API rate limit
+      scheduleReconnect(() => get().connect());
     };
 
     ws.onerror = () => {
@@ -247,10 +270,8 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   // Disconnect
   disconnect: () => {
     const { socket } = get();
-    if (reconnectTimer) {
-      clearTimeout(reconnectTimer);
-      reconnectTimer = null;
-    }
+    clearReconnectTimer();
+    reconnectAttempts = MAX_RECONNECT_ATTEMPTS; // prevent auto-reconnect after intentional disconnect
     if (socket) {
       socket.close();
     }

@@ -48,7 +48,15 @@ const Loginform = () => {
             // Fetch session to get user role (sign-in response doesn't include custom fields)
             const { data: session } = await authClient.getSession();
 
-            const role = (session?.user as { role?: string })?.role;
+            if (!session?.user) {
+              toast.error(
+                "Signed in, but session cookie was not set. Please try again or clear site cookies.",
+              );
+              setIsLoading(false);
+              return;
+            }
+
+            const role = (session.user as { role?: string })?.role;
 
             if (role === "admin") {
               // Sign out admin users immediately - they should use the admin panel
@@ -58,7 +66,9 @@ const Loginform = () => {
               return;
             }
             toast.success("Successfully signed in");
-            router.push("/dashboard");
+            const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+            router.push(callbackUrl.startsWith("/") ? callbackUrl : "/dashboard");
+            router.refresh();
           },
           onError: async (ctx) => {
             // Check if error is due to unverified email

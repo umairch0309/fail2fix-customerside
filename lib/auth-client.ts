@@ -3,31 +3,26 @@ import { emailOTPClient, magicLinkClient } from "better-auth/client/plugins";
 import { API_URL } from "./constants";
 
 /**
+ * Same-origin auth base in the browser (via Next.js rewrite → backend).
+ * Server components still talk to the absolute API URL when needed.
+ */
+const authBaseURL =
+  typeof window !== "undefined"
+    ? `${window.location.origin}/api/auth`
+    : `${API_URL}/api/auth`;
+
+/**
  * Better Auth Client for Customer Portal
  * Uses customer-specific auth endpoint with different cookie prefix
  * This allows customer and admin to be logged in simultaneously
  *
  * Cookie: customer-auth.session_token
  * Endpoint: /api/auth/*
- *
- * Usage:
- * - authClient.signIn.email({ email, password })
- * - authClient.signIn.social({ provider: "google" })
- * - authClient.signIn.emailOtp({ email, otp }) - Sign in with OTP
- * - authClient.signIn.magicLink({ email }) - Sign in with magic link
- * - authClient.signUp.email({ name, email, password })
- * - authClient.signOut()
- * - authClient.useSession()
- * - authClient.emailOtp.sendVerificationOtp({ email, type }) - Send OTP
- * - authClient.emailOtp.verifyEmail({ email, otp }) - Verify email with OTP
- * - authClient.forgetPassword.emailOtp({ email }) - Send password reset OTP
- * - authClient.emailOtp.resetPassword({ email, otp, password }) - Reset password
- * - authClient.setPassword({ password }) - Set password for users without one
  */
 export const authClient = createAuthClient({
-  baseURL: `${API_URL}/api/auth`, // Customer-specific auth endpoint
+  baseURL: authBaseURL,
   fetchOptions: {
-    credentials: 'include', // Required for cross-origin cookie handling
+    credentials: "include",
   },
   plugins: [emailOTPClient(), magicLinkClient()],
 });

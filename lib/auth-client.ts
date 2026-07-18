@@ -3,7 +3,7 @@ import { emailOTPClient, magicLinkClient } from "better-auth/client/plugins";
 import { API_URL } from "./constants";
 
 /**
- * Same-origin auth base in the browser (via Next.js rewrite → backend).
+ * Same-origin auth base in the browser (via app/api/auth proxy → backend).
  * Server components still talk to the absolute API URL when needed.
  */
 const authBaseURL =

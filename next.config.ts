@@ -3,10 +3,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
-const apiUrl = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:3007").replace(
-  /\/$/,
-  "",
-);
 
 const nextConfig: NextConfig = {
   turbopack: {
@@ -24,16 +20,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "motion", "date-fns"],
   },
-  // Proxy Better Auth through the frontend origin so session cookies are
-  // first-party on failfix-animation.vercel.app (required for SSR guards).
-  async rewrites() {
-    return [
-      {
-        source: "/api/auth/:path*",
-        destination: `${apiUrl}/api/auth/:path*`,
-      },
-    ];
-  },
+  // Auth is proxied via app/api/auth/[...path]/route.ts (more reliable than rewrites on Vercel).
 };
 
 export default nextConfig;

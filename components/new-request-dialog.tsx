@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { PhoneInput } from "@/components/phone-input";
 import { Field, FieldLabel, FieldError, FieldGroup } from "@/components/ui/field";
 import * as FileUpload from "@/components/ui/file-upload";
+import { toast } from "@/components/ui/sonner";
 import type { VrmLookupResponse } from "@/types/vehicle";
 import { defectTypeConfig } from "@/types/vehicle";
 import { UK_POSTCODE_REGEX } from "@/lib/uk-postcode";
@@ -382,18 +383,48 @@ export function NewRequestDialog({
                   <FileUpload.Root
                     value={files}
                     onValueChange={setFiles}
-                    accept="image/*,.pdf"
+                    accept="image/*,.pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                     maxFiles={5}
                     maxSize={10 * 1024 * 1024}
                     multiple
                     disabled={isBusy}
+                    onFileReject={(_file, message) => {
+                      toast.error(message || "File was not accepted");
+                    }}
                   >
                     <FileUpload.Dropzone className="border border-dashed border-[#FD6900] rounded-lg p-6 text-center bg-white">
                       <Upload className="h-5 w-5 mx-auto mb-2 text-[#494F57]" />
                       <p className="text-sm font-medium text-[#494F57]">
                         Import Files
                       </p>
+                      <p className="text-xs text-[#69757A] mt-1">
+                        Images, PDF, or DOC — max 10MB each
+                      </p>
                     </FileUpload.Dropzone>
+                    <FileUpload.List className="gap-2">
+                      {files.map((file) => (
+                        <FileUpload.Item
+                          key={`${file.name}-${file.size}-${file.lastModified}`}
+                          value={file}
+                          className="bg-white border border-[#EAEAEA]"
+                        >
+                          <FileUpload.ItemPreview />
+                          <FileUpload.ItemMetadata />
+                          <FileUpload.ItemDelete asChild>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="size-8 shrink-0"
+                              disabled={isBusy}
+                            >
+                              <X className="size-4" />
+                              <span className="sr-only">Remove file</span>
+                            </Button>
+                          </FileUpload.ItemDelete>
+                        </FileUpload.Item>
+                      ))}
+                    </FileUpload.List>
                   </FileUpload.Root>
                 </Field>
 

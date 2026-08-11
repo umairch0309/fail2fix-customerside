@@ -34,12 +34,28 @@ export function PlateInput({
     >
       <div
         className={cn(
-          "flex shrink-0 flex-col items-center justify-center px-2 py-0 font-inter text-[0.65rem] leading-tight font-bold sm:px-2.5 sm:text-[0.7rem]",
+          "flex shrink-0 flex-col items-center justify-center gap-0.5 px-2 py-1 font-inter text-[0.65rem] leading-none font-bold sm:px-2.5 sm:text-[0.7rem]",
           isOnDark ? "bg-navy text-cream" : "bg-navy text-cream",
         )}
+        aria-hidden
       >
-        GB
-        <span className="text-[0.85rem] sm:text-[0.95rem]">🇬🇧</span>
+        {/* Inline SVG — emoji 🇬🇧 often falls back to literal "GB" letters */}
+        <svg
+          viewBox="0 0 60 30"
+          className="h-2.5 w-5 sm:h-3 sm:w-6"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect width="60" height="30" fill="#012169" />
+          <path d="M0 0 L60 30 M60 0 L0 30" stroke="#fff" strokeWidth="6" />
+          <path
+            d="M0 0 L60 30 M60 0 L0 30"
+            stroke="#C8102E"
+            strokeWidth="2"
+          />
+          <path d="M30 0 V30 M0 15 H60" stroke="#fff" strokeWidth="10" />
+          <path d="M30 0 V30 M0 15 H60" stroke="#C8102E" strokeWidth="6" />
+        </svg>
+        <span>GB</span>
       </div>
       <input
         type="text"

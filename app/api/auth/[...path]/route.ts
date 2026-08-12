@@ -31,10 +31,15 @@ async function proxyAuth(request: Request, context: RouteContext) {
       if (value) headers.set(name, value);
     }
 
-    // Better Auth trust host / CORS: use marketing origin, not the backend host
+    // Better Auth trust host / CORS: use the browser-facing origin, not the API host.
+    // Proto must match the real request (https in prod, http on local) or OAuth
+    // redirect_uri / callback URLs are generated incorrectly.
     headers.set("origin", incoming.origin);
     headers.set("x-forwarded-host", incoming.host);
-    headers.set("x-forwarded-proto", "https");
+    headers.set(
+      "x-forwarded-proto",
+      incoming.protocol.replace(":", "") || "https",
+    );
 
     const init: RequestInit = {
       method: request.method,

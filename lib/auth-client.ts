@@ -28,7 +28,16 @@ export const authClient = createAuthClient({
 });
 
 // Export individual methods for convenience
-export const { signIn, signUp, signOut, useSession, emailOtp, forgetPassword } = authClient;
+export const {
+  signIn,
+  signUp,
+  signOut,
+  useSession,
+  emailOtp,
+  forgetPassword,
+  updateUser,
+  changePassword,
+} = authClient;
 
 // Export types using Better Auth's $Infer property
 export type Session = typeof authClient.$Infer.Session;

@@ -18,7 +18,7 @@ export interface QuoteRequestMetadata {
   vrm: string;
   postcode: string;
   notes?: string | null;
-  status: "quote_requested" | "quote_sent" | "accepted" | "rejected" | "closed";
+  status: "quote_requested" | "quote_sent" | "quote_accepted" | "paid" | "rejected" | "closed";
   createdAt: string;
 }
 

@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Eye, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Request, RequestStatus } from "@/types/request";
-import { requestStatusConfig } from "@/types/request";
+import { getRequestStatusConfig } from "@/types/request";
 import Link from "next/link";
 
 // Base columns without actions (shared between both versions)
@@ -44,7 +44,7 @@ const baseColumns: ColumnDef<Request>[] = [
     header: "Status",
     cell: ({ row }) => {
       const status = row.getValue("status") as RequestStatus;
-      const config = requestStatusConfig[status];
+      const config = getRequestStatusConfig(status);
       return (
         <div
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-sm font-medium border"

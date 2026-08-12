@@ -182,15 +182,15 @@ export function DataTableToolbar({
 
   return (
     <div className="flex items-center justify-between">
-      <div className="flex items-center bg-[#F8F8F8] rounded-lg p-1 gap-1 border border-[#EFEFEF]">
+      <div className="flex items-center brand-gradient-bg rounded-lg p-1 gap-1 shadow-sm">
         {tabs.map((tab) => (
           <button
             key={tab.value}
             onClick={() => onTabChange(tab.value)}
             className={`relative px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${
               activeTab === tab.value
-                ? "text-[#494F57]"
-                : "text-[#81868C] hover:text-[#494F57]"
+                ? "text-[#14213d]"
+                : "text-white/85 hover:text-white"
             }`}
           >
             {activeTab === tab.value && (

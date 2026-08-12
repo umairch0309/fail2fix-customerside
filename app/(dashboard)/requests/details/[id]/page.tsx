@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useRequest } from "@/hooks/use-requests";
-import { requestStatusConfig } from "@/types/request";
+import { getRequestStatusConfig } from "@/types/request";
 import { Copy, Check, Car, ArrowLeft, Wrench, FileText } from "lucide-react";
 import Link from "next/link";
 import { toast } from "@/components/ui/sonner";
@@ -88,6 +88,8 @@ export default function RequestDetailsPage() {
     );
   }
 
+  const statusConfig = getRequestStatusConfig(request.status);
+
   return (
     <div className="h-full flex flex-col bg-[#F8F8F8] border-t border-[#EBEBEB] overflow-hidden">
       {/* Header */}
@@ -114,12 +116,12 @@ export default function RequestDetailsPage() {
         <span
           className="px-3 py-1.5 rounded-full text-xs font-semibold"
           style={{
-            color: requestStatusConfig[request.status].textColor,
-            backgroundColor: requestStatusConfig[request.status].bgColor,
-            border: `1px solid ${requestStatusConfig[request.status].borderColor}`,
+            color: statusConfig.textColor,
+            backgroundColor: statusConfig.bgColor,
+            border: `1px solid ${statusConfig.borderColor}`,
           }}
         >
-          {requestStatusConfig[request.status].label}
+          {statusConfig.label}
         </span>
       </div>
 

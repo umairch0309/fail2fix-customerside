@@ -30,6 +30,8 @@ const protectedRoutes = [
   "/requests",
   "/payments",
   "/orders",
+  "/profile",
+  "/settings",
 ];
 
 // Auth routes that should redirect to dashboard if authenticated

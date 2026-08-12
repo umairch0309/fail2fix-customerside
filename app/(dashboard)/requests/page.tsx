@@ -12,7 +12,7 @@ const tabs = [
   { value: "all", label: "All" },
   { value: "quote_requested", label: "Requested" },
   { value: "quote_sent", label: "Quote Sent" },
-  { value: "accepted", label: "Accepted" },
+  { value: "quote_accepted", label: "Deposit Paid" },
   { value: "rejected", label: "Rejected" },
   { value: "closed", label: "Closed" },
 ];

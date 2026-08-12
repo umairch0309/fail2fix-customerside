@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Fraunces, JetBrains_Mono } from "next/font/google";
 import Script from "next/script";
 import { Toaster } from "@/components/ui/sonner";
 import { Providers } from "./providers";
@@ -104,15 +103,41 @@ const polysanstrial = localFont({
   preload: true,
 });
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
+const fraunces = localFont({
+  src: [
+    {
+      path: "./fonts/fraunces/fraunces-latin-400-normal.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/fraunces/fraunces-latin-600-normal.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/fraunces/fraunces-latin-700-normal.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
   variable: "--font-fraunces",
   display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["600", "700"],
+const jetbrainsMono = localFont({
+  src: [
+    {
+      path: "./fonts/jetbrains-mono/jetbrains-mono-latin-600-normal.woff2",
+      weight: "600",
+      style: "normal",
+    },
+    {
+      path: "./fonts/jetbrains-mono/jetbrains-mono-latin-700-normal.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
   variable: "--font-jetbrains-mono",
   display: "swap",
 });

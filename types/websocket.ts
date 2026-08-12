@@ -89,7 +89,7 @@ export interface QuoteRequestPayload {
   vrm: string;
   postcode: string;
   notes?: string | null;
-  status: "quote_requested" | "quote_sent" | "paid" | "rejected" | "closed";
+  status: "quote_requested" | "quote_sent" | "quote_accepted" | "paid" | "rejected" | "closed";
   createdAt: string;
 }
 

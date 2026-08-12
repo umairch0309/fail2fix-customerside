@@ -11,7 +11,8 @@ import type { QuoteStatus } from "@/types/quote";
 const tabs = [
   { value: "all", label: "All" },
   { value: "sent", label: "Pending" },
-  { value: "accepted", label: "Accepted" },
+  { value: "deposit_paid", label: "Deposit paid" },
+  { value: "paid", label: "Fully paid" },
   { value: "rejected", label: "Rejected" },
   { value: "expired", label: "Expired" },
 ];
@@ -134,12 +135,12 @@ export default function QuotesPage() {
           {[...Array(4)].map((_, i) => (
             <div
               key={i}
-              className="w-[200px] h-[280px] bg-gray-100 animate-pulse rounded-xl"
+              className="w-full max-w-[240px] min-h-[200px] bg-gray-100 animate-pulse rounded-xl"
             />
           ))}
         </div>
       ) : searchFilteredData.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-[280px] text-gray-500">
+        <div className="flex flex-col items-center justify-center min-h-[200px] text-gray-500">
           <p>No quotes found</p>
           <p className="text-sm text-gray-400 mt-1">
             Quotes will appear here once sent to you

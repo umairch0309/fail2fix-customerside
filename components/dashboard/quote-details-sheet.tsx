@@ -8,7 +8,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useRequest } from "@/hooks/use-requests";
-import { requestStatusConfig } from "@/types/request";
+import { getRequestStatusConfig } from "@/types/request";
 import { Copy, Check, Car } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { FilePreviewModal, FileThumbnail } from "@/components/ui/file-preview-modal";
@@ -92,18 +92,24 @@ const QuoteDetailsSheet: React.FC<QuoteDetailsSheetProps> = ({
         ) : request ? (
           <div className="px-6 pt-4 pb-6 space-y-5">
             {/* Status Badge - Prominent at top */}
+            {/* Status Badge - Prominent at top */}
             <div className="flex items-center justify-between bg-white border border-[#EDEDED] rounded-lg px-4 h-14">
               <span className="text-sm font-medium text-[#7F7F7F]">Status</span>
-              <span
-                className="px-3 py-1.5 rounded-full text-xs font-semibold"
-                style={{
-                  color: requestStatusConfig[request.status].textColor,
-                  backgroundColor: requestStatusConfig[request.status].bgColor,
-                  border: `1px solid ${requestStatusConfig[request.status].borderColor}`,
-                }}
-              >
-                {requestStatusConfig[request.status].label}
-              </span>
+              {(() => {
+                const statusConfig = getRequestStatusConfig(request.status);
+                return (
+                  <span
+                    className="px-3 py-1.5 rounded-full text-xs font-semibold"
+                    style={{
+                      color: statusConfig.textColor,
+                      backgroundColor: statusConfig.bgColor,
+                      border: `1px solid ${statusConfig.borderColor}`,
+                    }}
+                  >
+                    {statusConfig.label}
+                  </span>
+                );
+              })()}
             </div>
 
             {/* MOT Details Upload - Moved to top */}

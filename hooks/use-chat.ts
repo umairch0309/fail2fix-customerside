@@ -31,5 +31,6 @@ export function useChatMessages() {
       return allPages.flat().length;
     },
     staleTime: 30 * 1000,
+    refetchOnMount: "always",
   });
 }

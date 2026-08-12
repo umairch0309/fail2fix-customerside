@@ -8,6 +8,9 @@ import QuoteDetailsSheet from "@/components/dashboard/quote-details-sheet";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { useWebSocketStore } from "@/stores/websocket-store";
 import { useChatMessages } from "@/hooks/use-chat";
+import { queryKeys } from "@/lib/query-keys";
+import { useQueryClient } from "@tanstack/react-query";
+import { useSession } from "@/lib/auth-client";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Loader2 } from "lucide-react";
 
@@ -80,6 +83,9 @@ export default function ChatsPage() {
   // Sheet state
   const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const { data: session } = useSession();
+  const sessionUserId = session?.user?.id ?? null;
 
   const handleViewDetails = useCallback((requestId: string) => {
     setSelectedRequestId(requestId);
@@ -100,12 +106,15 @@ export default function ChatsPage() {
   const realtimeMessages = useWebSocketStore((state) => state.messages);
   const sendMessage = useWebSocketStore((state) => state.sendMessage);
   const isConnected = useWebSocketStore((state) => state.state === "connected");
-  const userId = useWebSocketStore((state) => state.userId);
+  const wsUserId = useWebSocketStore((state) => state.userId);
   const markAsRead = useWebSocketStore((state) => state.markAsRead);
   const clearMessages = useWebSocketStore((state) => state.clearMessages);
   const isOtherPartyOnline = useWebSocketStore((state) => state.isOtherPartyOnline);
   const isOtherPartyTyping = useWebSocketStore((state) => state.isOtherPartyTyping);
   const sendTyping = useWebSocketStore((state) => state.sendTyping);
+
+  // Prefer auth session id so bubble side stays correct even if WS auth was wrong
+  const myUserId = sessionUserId || wsUserId;
 
   // Flatten pages (reverse order: older pages first) and merge with real-time messages
   const messages = useMemo(() => {
@@ -118,6 +127,7 @@ export default function ChatsPage() {
       senderId: msg.senderId,
       content: msg.content,
       timestamp: new Date(msg.createdAt).getTime(),
+      senderRole: msg.senderRole as string | null | undefined,
       _type: msg.messageType as "chat" | "quote_request" | undefined,
       _quoteRequest: msg.messageType === "quote_request" && msg.metadata
         ? msg.metadata as typeof realtimeMessages[0]["_quoteRequest"]
@@ -169,11 +179,14 @@ export default function ChatsPage() {
     // Mark messages as read when entering chat page
     markAsRead();
 
-    // Clear real-time messages when leaving (they'll be fetched from API next time)
+    // Always refetch so WS messages aren't lost behind a stale React Query cache
+    void queryClient.invalidateQueries({ queryKey: queryKeys.chats.myMessages });
+
+    // Clear real-time buffer when leaving (history comes from API next visit)
     return () => {
       clearMessages();
     };
-  }, [setHeader, markAsRead, clearMessages]);
+  }, [setHeader, markAsRead, clearMessages, queryClient]);
 
   // Scroll to bottom on initial load only
   useEffect(() => {
@@ -313,7 +326,11 @@ export default function ChatsPage() {
                     <Chatbox
                       message={msg.content}
                       time={formatTime(msg.timestamp)}
-                      isOwn={msg.senderId === userId}
+                      isOwn={
+                        "senderRole" in msg && msg.senderRole
+                          ? msg.senderRole === "customer"
+                          : !!myUserId && msg.senderId === myUserId
+                      }
                       showTime={showTime}
                       isGrouped={isGrouped}
                     />
@@ -327,7 +344,12 @@ export default function ChatsPage() {
       </div>
 
       {/* Chat Input */}
-      <div className="bg-[#F5F5F5] p-4 border-t border-[#EAEAEA]">
+      <div className="bg-[#F5F5F5] p-4 border-t border-[#EAEAEA] space-y-2">
+        {!isConnected && (
+          <p className="text-center text-xs text-[#813500] bg-[#FFF8F3] border border-[#FFE4D2] rounded-lg px-3 py-2">
+            Reconnecting to chat… Messages can&apos;t be sent until you&apos;re back online.
+          </p>
+        )}
         <Chatinput onSend={handleSend} onTyping={handleTyping} disabled={!isConnected} />
       </div>
 

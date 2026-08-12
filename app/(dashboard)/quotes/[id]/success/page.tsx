@@ -45,22 +45,27 @@ export default function PaymentSuccessPage() {
     }
   }, [verifyResult, queryClient, quoteId]);
 
-  // Auto-redirect countdown
+  // Auto-redirect countdown (never navigate inside a setState updater)
   useEffect(() => {
-    if (verifyResult?.status === "paid") {
-      const interval = setInterval(() => {
-        setRedirectCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            router.push("/orders");
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [verifyResult, router]);
+    if (verifyResult?.status !== "paid") return;
+
+    const interval = setInterval(() => {
+      setRedirectCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [verifyResult?.status]);
+
+  useEffect(() => {
+    if (verifyResult?.status !== "paid" || redirectCountdown > 0) return;
+    router.push("/orders");
+  }, [verifyResult?.status, redirectCountdown, router]);
 
   if (isLoading) {
     return (

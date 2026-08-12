@@ -216,28 +216,30 @@ export function NewRequestDialog({
         showCloseButton={false}
         className="sm:max-w-[650px] max-h-[90vh] p-4 gap-0 rounded-3xl overflow-hidden flex flex-col bg-white border border-[#F0F0F0]"
       >
-        <div className="bg-[#F6F6F6] border border-[#F0F0F0] rounded-2xl px-6 py-4 mb-3 relative">
-          {step === 2 && (
+        <div className="bg-[#F6F6F6] border border-[#F0F0F0] rounded-2xl px-4 py-4 mb-3 flex items-start gap-3 relative">
+          {step === 2 ? (
             <button
               type="button"
               onClick={() => setStep(1)}
-              className="absolute top-4 left-4 p-1 rounded-full hover:bg-[#EAEAEA] transition-colors"
+              className="mt-0.5 shrink-0 p-1 rounded-full hover:bg-[#EAEAEA] transition-colors"
               aria-label="Back"
             >
               <ArrowLeft className="h-5 w-5 text-[#81868C]" />
             </button>
-          )}
-          <h2 className="text-xl font-semibold text-[#0E1716]">
-            {step === 1 && "Vehicle details"}
-            {step === 2 && "Select repairs"}
-            {step === 3 && "Request submitted"}
-          </h2>
-          <p className="text-[#7F8282] text-sm">
-            {step === 1 && "Enter your vehicle details and get a quote"}
-            {step === 2 &&
-              `${defectsData?.vehicle.make} ${defectsData?.vehicle.model} · ${defectsData?.vehicle.vrm}`}
-            {step === 3 && successMessage}
-          </p>
+          ) : null}
+          <div className="min-w-0 flex-1 pr-8">
+            <h2 className="text-xl font-semibold text-[#0E1716]">
+              {step === 1 && "Vehicle details"}
+              {step === 2 && "Select repairs"}
+              {step === 3 && "Request submitted"}
+            </h2>
+            <p className="text-[#7F8282] text-sm">
+              {step === 1 && "Enter your vehicle details and get a quote"}
+              {step === 2 &&
+                `${defectsData?.vehicle.make} ${defectsData?.vehicle.model} · ${defectsData?.vehicle.vrm}`}
+              {step === 3 && successMessage}
+            </p>
+          </div>
           <DialogClose className="absolute top-4 right-4 p-1 rounded-full hover:bg-[#EAEAEA] transition-colors">
             <X className="h-5 w-5 text-[#81868C]" />
           </DialogClose>

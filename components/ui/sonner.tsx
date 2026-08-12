@@ -106,6 +106,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       className="toaster group"
       position="top-center"
+      // Keep multiple toasts fully expanded so they stack with spacing
+      // instead of collapsing on top of each other (Sonner's default).
+      expand
+      gap={12}
+      visibleToasts={5}
       icons={{
         success: <SuccessIcon />,
         info: <InfoIcon />,

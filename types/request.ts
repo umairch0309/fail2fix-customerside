@@ -9,6 +9,7 @@
 export type RequestStatus =
   | "quote_requested"
   | "quote_sent"
+  | "quote_accepted"
   | "paid"
   | "rejected"
   | "closed";
@@ -129,6 +130,13 @@ export const requestStatusConfig: Record<
     borderColor: "#DBEAFE",
     bgColor: "#EFF6FF",
   },
+  quote_accepted: {
+    label: "Deposit Paid",
+    textColor: "#166534",
+    statusColor: "#22C55E",
+    borderColor: "#BBF7D0",
+    bgColor: "#F0FDF4",
+  },
   paid: {
     label: "Paid",
     textColor: "#395214",
@@ -151,3 +159,15 @@ export const requestStatusConfig: Record<
     bgColor: "#F9FAFB",
   },
 };
+
+const fallbackRequestStatusConfig = {
+  label: "Unknown",
+  textColor: "#6B7280",
+  statusColor: "#9CA3AF",
+  borderColor: "#E5E7EB",
+  bgColor: "#F9FAFB",
+} as const;
+
+/** Safe lookup — never throws for unexpected API statuses */
+export const getRequestStatusConfig = (status: string) =>
+  requestStatusConfig[status as RequestStatus] ?? fallbackRequestStatusConfig;

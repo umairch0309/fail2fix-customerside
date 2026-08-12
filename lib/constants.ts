@@ -20,4 +20,4 @@ export const BLOG_CMS_URL = process.env.NEXT_PUBLIC_BLOG_CMS_URL || "https://blo
  * WebSocket URL
  * Derived from API_URL - converts http(s) to ws(s)
  */
-export const WS_URL = API_URL.replace(/^http/, "ws");
+export const WS_URL = `${API_URL.replace(/^http/, "ws")}?client=customer`;

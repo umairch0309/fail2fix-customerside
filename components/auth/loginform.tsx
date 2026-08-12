@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
 import { z } from "zod";
@@ -12,6 +12,7 @@ import Google from "@/public/icons/google";
 import HeadingGroup from "../headinggroup";
 import { Field, FieldLabel, FieldError, FieldGroup } from "../ui/field";
 import { signIn, signOut, emailOtp, authClient } from "@/lib/auth-client";
+import { signInWithGoogle } from "@/lib/google-auth";
 import Link from "next/link";
 
 const loginSchema = z.object({
@@ -29,6 +30,12 @@ const Loginform = () => {
   const emailFromParams = searchParams.get("email") || "";
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const safeCallbackUrl = callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
+
+  useEffect(() => {
+    if (searchParams.get("error") === "google") {
+      toast.error("Google sign-in failed. Please try again or use email.");
+    }
+  }, [searchParams]);
 
   const form = useForm({
     defaultValues: {
@@ -99,18 +106,15 @@ const Loginform = () => {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    await signIn.social(
-      {
-        provider: "google",
-        callbackURL: `${window.location.origin}${safeCallbackUrl}`,
-      },
-      {
-        onError: (ctx) => {
-          toast.error(ctx.error.message || "Google sign in failed.");
-          setIsGoogleLoading(false);
-        },
-      },
-    );
+    try {
+      await signInWithGoogle(safeCallbackUrl, (message) => {
+        toast.error(message);
+        setIsGoogleLoading(false);
+      });
+    } catch {
+      toast.error("Google sign in failed.");
+      setIsGoogleLoading(false);
+    }
   };
 
   return (

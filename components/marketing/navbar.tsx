@@ -79,13 +79,22 @@ const Navbar = () => {
               </Button>
             </>
           ) : (
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="hidden cursor-pointer px-2 text-[0.92rem] text-landing-slate hover:text-navy md:block"
-            >
-              Sign out
-            </button>
+            <>
+              <Button
+                onClick={() => router.push("/dashboard")}
+                variant="outline"
+                className="hidden rounded-lg border-navy/20 px-3 text-[0.92rem] text-navy md:inline-flex"
+              >
+                Dashboard
+              </Button>
+              <button
+                type="button"
+                onClick={handleSignOut}
+                className="hidden cursor-pointer px-2 text-[0.92rem] text-landing-slate hover:text-navy md:block"
+              >
+                Sign out
+              </button>
+            </>
           )}
 
           <button

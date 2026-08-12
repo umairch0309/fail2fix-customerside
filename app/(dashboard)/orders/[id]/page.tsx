@@ -71,9 +71,14 @@ export default function OrderDetailsPage() {
   const itemCount = order.quote?.items?.length || 0;
 
   // Balance payment calculations
-  const balanceAmount = paymentStatus?.balanceAmount
-    ? parseFloat(paymentStatus.balanceAmount)
-    : quoteTotal * 0.90;
+  const depositPaidAmount = paymentStatus?.depositAmount
+    ? parseFloat(paymentStatus.depositAmount)
+    : quoteTotal * 0.1;
+  const balanceAmount = paymentStatus?.depositPaid
+    ? Math.max(0, quoteTotal - depositPaidAmount)
+    : paymentStatus?.balanceAmount
+      ? parseFloat(paymentStatus.balanceAmount)
+      : quoteTotal * 0.9;
   const canPayBalance = paymentStatus?.canPayBalance ||
     (order.status === "completed" && paymentStatus?.depositPaid && !paymentStatus?.fullyPaid);
   const isFullyPaid = paymentStatus?.fullyPaid;

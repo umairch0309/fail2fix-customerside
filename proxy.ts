@@ -53,6 +53,21 @@ export async function proxy(request: NextRequest) {
   // This does NOT validate the session - just checks if cookie exists
   const cookieHeader = request.headers.get("cookie");
   const hasSession = hasSessionCookie(cookieHeader);
+  const forceLogin = request.nextUrl.searchParams.get("forceLogin") === "1";
+
+  // Stale / wrong-role cookie: clear and show login
+  if (isAuthRoute && forceLogin) {
+    const response = NextResponse.next();
+    response.cookies.set("customer-auth.session_token", "", {
+      path: "/",
+      maxAge: 0,
+    });
+    response.cookies.set("customer-auth.session_data", "", {
+      path: "/",
+      maxAge: 0,
+    });
+    return response;
+  }
 
   // Redirect authenticated users away from auth pages to dashboard
   if (isAuthRoute && hasSession) {

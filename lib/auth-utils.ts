@@ -88,7 +88,15 @@ export const getSession = cache(async (): Promise<Session | null> => {
  */
 export async function requireAuth(redirectTo = "/login"): Promise<Session> {
   const session = await getSession();
-  if (!session) redirect(redirectTo);
+  if (!session) {
+    // forceLogin tells the proxy to clear a stale session cookie and stop
+    // /login ↔ /dashboard redirect loops.
+    const url =
+      redirectTo === "/login" || redirectTo.startsWith("/login?")
+        ? "/login?forceLogin=1"
+        : redirectTo;
+    redirect(url);
+  }
   return session;
 }
 
@@ -132,7 +140,14 @@ export async function requireRole(
 ): Promise<Session> {
   const session = await requireAuth();
   const roles = Array.isArray(role) ? role : [role];
-  if (!roles.includes(session.user.role)) redirect(redirectTo);
+  if (!roles.includes(session.user.role)) {
+    // Wrong portal role (e.g. admin cookie on customer app) — clear and login
+    redirect(
+      redirectTo === "/login" || redirectTo.startsWith("/login")
+        ? "/login?forceLogin=1"
+        : redirectTo,
+    );
+  }
   return session;
 }
 

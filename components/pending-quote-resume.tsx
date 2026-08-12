@@ -31,6 +31,7 @@ function trackConversion() {
 
 /**
  * After Sign In / Sign Up, submit the marketing quote draft saved in sessionStorage.
+ * Runs at most once per page load — failures must not remount /dashboard in a loop.
  */
 export function PendingQuoteResume() {
   const { data: session, isPending: sessionPending } = useSession();
@@ -43,18 +44,19 @@ export function PendingQuoteResume() {
     if (sessionPending || ranRef.current) return;
     if (!session?.user) return;
 
-    const shouldResume =
-      searchParams.get(RESUME_QUOTE_PARAM) === "1" || getPendingQuote() !== null;
-    if (!shouldResume) return;
-
+    const resumeFlag = searchParams.get(RESUME_QUOTE_PARAM) === "1";
     const pending = getPendingQuote();
+
     if (!pending) {
-      if (searchParams.get(RESUME_QUOTE_PARAM) === "1") {
+      // Clear stale ?resume=1 without re-triggering this effect in a loop
+      if (resumeFlag) {
+        ranRef.current = true;
         router.replace("/dashboard");
       }
       return;
     }
 
+    // Lock before async work so remounts / Strict Mode cannot double-submit
     ranRef.current = true;
 
     const submit = async () => {
@@ -79,7 +81,6 @@ export function PendingQuoteResume() {
         }
 
         if (selectedDefectIds.length === 0 && lookup.defects.length > 0) {
-          // Last resort: keep the count of originally selected items
           selectedDefectIds = lookup.defects
             .slice(0, Math.max(1, pending.selectedDefectTexts.length || 1))
             .map((d) => d.id);
@@ -120,7 +121,8 @@ export function PendingQuoteResume() {
         );
         router.replace("/requests");
       } catch (error) {
-        ranRef.current = false;
+        // Keep ranRef true — do not retry forever (was blanking /dashboard)
+        clearPendingQuote();
         toast.error(
           error instanceof Error
             ? error.message

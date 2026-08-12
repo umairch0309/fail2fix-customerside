@@ -111,16 +111,19 @@ export function QuoteActions({ quote, onSuccess }: QuoteActionsProps) {
   const depositCheckout = useCreateDepositCheckout();
   const { data: paymentStatus } = useQuotePaymentStatus(quote.id);
 
-  // Calculate amounts (10% deposit, 90% balance)
+  // Calculate amounts. After deposit, remaining is total − amount already paid.
   const total = parseFloat(quote.total || "0");
   const depositAmount = paymentStatus?.depositAmount || (total * 0.1).toFixed(2);
-  const balanceAmount = paymentStatus?.balanceAmount || (total * 0.9).toFixed(2);
-
-  // Determine UI state
   const isExpired = quote.validUntil && new Date(quote.validUntil) < new Date();
-  const canPayDeposit = quote.status === "sent" && !paymentStatus?.depositPaid && !isExpired;
-  const depositPaid = paymentStatus?.depositPaid || quote.status === "deposit_paid" || quote.status === "paid";
+  const depositPaid =
+    paymentStatus?.depositPaid ||
+    quote.status === "deposit_paid" ||
+    quote.status === "paid";
   const fullyPaid = paymentStatus?.fullyPaid || quote.status === "paid";
+  const canPayDeposit = quote.status === "sent" && !paymentStatus?.depositPaid && !isExpired;
+  const balanceAmount = depositPaid
+    ? Math.max(0, total - parseFloat(depositAmount)).toFixed(2)
+    : paymentStatus?.balanceAmount || (total * 0.9).toFixed(2);
 
   const handlePayDeposit = async () => {
     try {

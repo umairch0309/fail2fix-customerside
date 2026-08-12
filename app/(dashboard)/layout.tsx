@@ -2,7 +2,9 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DashboardHeader } from "@/components/dashboard-header";
 import { WebSocketProvider } from "@/components/websocket-provider";
+import { PendingQuoteResume } from "@/components/pending-quote-resume";
 import { requireRole, requireVerifiedAuth } from "@/lib/auth-utils";
+import { Suspense } from "react";
 
 export const metadata = {
   robots: { index: false, follow: false },
@@ -25,6 +27,9 @@ export default async function DashboardLayout({
           <main className="flex-1 min-w-0 bg-white rounded-xl border border-[#EAEAEA] flex flex-col overflow-hidden">
             <DashboardHeader />
             <div className="flex-1 min-h-0 overflow-auto">
+              <Suspense fallback={null}>
+                <PendingQuoteResume />
+              </Suspense>
               {children}
             </div>
           </main>

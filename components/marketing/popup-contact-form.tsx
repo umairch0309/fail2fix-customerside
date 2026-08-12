@@ -1,5 +1,6 @@
 "use client";
 import { useState, useRef, useMemo, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "@tanstack/react-form";
 import { getCountries, getCountryCallingCode } from "libphonenumber-js";
 import { Upload, X, ChevronsUpDownIcon, ArrowLeft, Check } from "lucide-react";
@@ -30,9 +31,15 @@ import {
   hasRecentClientEnquiry,
   markClientEnquirySubmitted,
 } from "@/lib/enquiry-submit-guard";
+import {
+  buildQuoteSignInUrl,
+  savePendingQuote,
+} from "@/lib/pending-quote";
+import { useSession } from "@/lib/auth-client";
 import { validateUkPostcode, isValidUkPostcode } from "@/lib/uk-postcode";
 import type { VrmLookupResponse, MotDefectWithPricing } from "@/types/vehicle";
 import { defectTypeConfig } from "@/types/vehicle";
+import { toast } from "@/components/ui/sonner";
 
 const getCountryName = (countryCode: string) => {
   try {
@@ -56,6 +63,8 @@ export function PopupContactForm({
   initialPostcode = "",
   initialVrm = "",
 }: PopupContactFormProps) {
+  const router = useRouter();
+  const { data: session } = useSession();
   const [files, setFiles] = useState<File[]>([]);
   const [phonePopoverOpen, setPhonePopoverOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -172,12 +181,35 @@ export function PopupContactForm({
       return;
     }
 
+    const selectedDefects = (defectsData.defects || []).filter((d) =>
+      selectedIds.has(d.id),
+    );
+    const payload = {
+      name: formValues.name,
+      email: formValues.email,
+      phone: formValues.phone,
+      vrm: formValues.vrm,
+      postcode: formValues.postcode,
+      selectedDefectIds: Array.from(selectedIds),
+      selectedDefectTexts: selectedDefects.map((d) => d.text),
+      notes: formValues.notes || undefined,
+    };
+
+    // Guest flow: save draft → Sign In → request is submitted after auth
+    if (!session?.user) {
+      savePendingQuote(payload);
+      handleOpenChange(false);
+      toast.info("Please sign in to submit your repair quote request.");
+      router.push(buildQuoteSignInUrl(formValues.email));
+      return;
+    }
+
     isSubmittingRef.current = true;
 
     submitSelection.mutate(
       {
-        name: formValues.name,
-        email: formValues.email,
+        name: session.user.name || formValues.name,
+        email: session.user.email || formValues.email,
         phone: formValues.phone,
         vrm: formValues.vrm,
         postcode: formValues.postcode,

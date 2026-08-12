@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import Padding from "@/components/padding";
 import AuthImage from "./AuthImage";
 import AuthFooterLink from "./AuthFooterLink";
@@ -28,7 +29,9 @@ export default function AuthLayoutShell({
         <div className="flex-1 flex items-center justify-center py-6">
           <div className="flex w-full max-w-md flex-col items-center gap-6">
             {children}
-            <AuthFooterLink />
+            <Suspense fallback={null}>
+              <AuthFooterLink />
+            </Suspense>
           </div>
         </div>
       </div>

@@ -24,6 +24,11 @@ export function useVrmLookup() {
             "Vehicle not found. Please check the registration number.",
           );
         }
+        if (error instanceof ApiError && error.status === 429) {
+          throw new Error(
+            "Too many vehicle lookups. Please wait a minute and try again.",
+          );
+        }
         throw error;
       }
     },

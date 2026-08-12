@@ -35,7 +35,8 @@ const VerifyEmailForm = () => {
       {
         onSuccess: () => {
           toast.success("Email verified successfully!");
-          router.push("/dashboard");
+          const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+          router.push(callbackUrl.startsWith("/") ? callbackUrl : "/dashboard");
         },
         onError: (ctx) => {
           toast.error(ctx.error.message || "Verification failed. Please try again.");

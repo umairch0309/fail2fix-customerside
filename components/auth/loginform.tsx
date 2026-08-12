@@ -25,8 +25,10 @@ const Loginform = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-  // Get email from query params (e.g., from quote submission redirect)
+  // Get email / callback from quote redirect or protected-route gate
   const emailFromParams = searchParams.get("email") || "";
+  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const safeCallbackUrl = callbackUrl.startsWith("/") ? callbackUrl : "/dashboard";
 
   const form = useForm({
     defaultValues: {
@@ -66,8 +68,7 @@ const Loginform = () => {
               return;
             }
             toast.success("Successfully signed in");
-            const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
-            router.push(callbackUrl.startsWith("/") ? callbackUrl : "/dashboard");
+            router.push(safeCallbackUrl);
             router.refresh();
           },
           onError: async (ctx) => {
@@ -79,9 +80,11 @@ const Loginform = () => {
                 type: "email-verification",
               });
               toast.info("Please verify your email first");
-              router.push(
-                `/verify-email?email=${encodeURIComponent(value.email)}`,
-              );
+              const verifyParams = new URLSearchParams({
+                email: value.email,
+                callbackUrl: safeCallbackUrl,
+              });
+              router.push(`/verify-email?${verifyParams.toString()}`);
             } else {
               toast.error(
                 ctx.error.message || "Login failed. Please try again.",
@@ -99,7 +102,7 @@ const Loginform = () => {
     await signIn.social(
       {
         provider: "google",
-        callbackURL: `${window.location.origin}/dashboard`,
+        callbackURL: `${window.location.origin}${safeCallbackUrl}`,
       },
       {
         onError: (ctx) => {

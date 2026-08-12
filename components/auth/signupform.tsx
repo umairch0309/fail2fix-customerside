@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import { toast } from 'sonner'
@@ -21,13 +21,19 @@ const signupSchema = z.object({
 
 const Signupform = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 
+  const emailFromParams = searchParams.get('email') || ''
+  const nameFromParams = searchParams.get('name') || ''
+  const callbackUrl = searchParams.get('callbackUrl') || '/dashboard'
+  const safeCallbackUrl = callbackUrl.startsWith('/') ? callbackUrl : '/dashboard'
+
   const form = useForm({
     defaultValues: {
-      name: '',
-      email: '',
+      name: nameFromParams,
+      email: emailFromParams,
       password: '',
     },
     validators: {
@@ -44,7 +50,11 @@ const Signupform = () => {
         {
           onSuccess: () => {
             toast.success('Account created! Please verify your email.')
-            router.push(`/verify-email?email=${encodeURIComponent(value.email)}`)
+            const verifyParams = new URLSearchParams({
+              email: value.email,
+              callbackUrl: safeCallbackUrl,
+            })
+            router.push(`/verify-email?${verifyParams.toString()}`)
           },
           onError: (ctx) => {
             toast.error(ctx.error.message || 'Sign up failed. Please try again.')
@@ -60,7 +70,7 @@ const Signupform = () => {
     await signIn.social(
       {
         provider: 'google',
-        callbackURL: `${window.location.origin}/dashboard`,
+        callbackURL: `${window.location.origin}${safeCallbackUrl}`,
       },
       {
         onError: (ctx) => {

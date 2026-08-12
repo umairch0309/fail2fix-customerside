@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 const linkMap: Record<string, { text: string; linkText: string; href: string } | null> = {
@@ -30,6 +30,7 @@ const defaultLink = {
 
 export default function AuthFooterLink() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const link = linkMap[pathname];
 
   // Don't render footer link for certain pages
@@ -38,11 +39,20 @@ export default function AuthFooterLink() {
   }
 
   const displayLink = link || defaultLink;
+  const preserved = new URLSearchParams();
+  const email = searchParams.get("email");
+  const name = searchParams.get("name");
+  const callbackUrl = searchParams.get("callbackUrl");
+  if (email) preserved.set("email", email);
+  if (name) preserved.set("name", name);
+  if (callbackUrl) preserved.set("callbackUrl", callbackUrl);
+  const query = preserved.toString();
+  const href = query ? `${displayLink.href}?${query}` : displayLink.href;
 
   return (
     <p className="text-sm text-center text-[#838383]">
       {displayLink.text}{' '}
-      <Link href={displayLink.href} className="text-[#F15D1E] font-medium hover:underline">
+      <Link href={href} className="text-[#F15D1E] font-medium hover:underline">
         {displayLink.linkText}
       </Link>
     </p>

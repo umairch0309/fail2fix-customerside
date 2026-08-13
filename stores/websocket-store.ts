@@ -25,6 +25,7 @@ export type WebSocketState = {
   // Presence - is the other party online?
   isOtherPartyOnline: boolean;
   otherPartyRole: "admin" | "customer" | null;
+  onlineUsers: Record<string, "admin" | "customer">;
 
   // Typing indicator
   isOtherPartyTyping: boolean;
@@ -104,6 +105,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   isOtherPartyOnline: false,
   otherPartyRole: null,
   isOtherPartyTyping: false,
+  onlineUsers: {},
 
   // Connect to WebSocket
   connect: () => {
@@ -169,20 +171,36 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
             userId: payload.userId ?? null,
             chatId: payload.chatId ?? null,
           });
+          const liveChatId = payload.chatId ?? get().chatId;
+          if (liveChatId && ws.readyState === WebSocket.OPEN) {
+            ws.send(
+              JSON.stringify({
+                type: "presence_request",
+                topic: `chat:${liveChatId}`,
+                timestamp: Date.now(),
+              }),
+            );
+          }
         }
 
         // Handle presence updates
         if (message.type === "presence" && message.topic?.startsWith("chat:")) {
           const presencePayload = message.payload as PresencePayload;
-          const { userId } = get();
+          const { userId, onlineUsers } = get();
+          if (presencePayload.userId === userId) return;
 
-          // Only care about other party's presence
-          if (presencePayload.userId !== userId) {
-            set({
-              isOtherPartyOnline: presencePayload.isOnline,
-              otherPartyRole: presencePayload.userRole,
-            });
+          const next = { ...onlineUsers };
+          if (presencePayload.isOnline) {
+            next[presencePayload.userId] = presencePayload.userRole;
+          } else {
+            delete next[presencePayload.userId];
           }
+          const adminOnline = Object.values(next).includes("admin");
+          set({
+            onlineUsers: next,
+            isOtherPartyOnline: adminOnline,
+            otherPartyRole: adminOnline ? "admin" : null,
+          });
         }
 
         // Handle typing indicators
@@ -207,7 +225,19 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         // Handle chat messages
         if (message.type === "chat" && message.topic?.startsWith("chat:")) {
           const chatPayload = message.payload as ChatPayload;
-          const { userId, messages } = get();
+          const { userId, messages, onlineUsers } = get();
+
+          if (chatPayload.senderId && chatPayload.senderId !== userId) {
+            const next = {
+              ...onlineUsers,
+              [chatPayload.senderId]: "admin" as const,
+            };
+            set({
+              onlineUsers: next,
+              isOtherPartyOnline: true,
+              otherPartyRole: "admin",
+            });
+          }
 
           // Add message to store
           set({ messages: [...messages, chatPayload] });

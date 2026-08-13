@@ -16,6 +16,7 @@ export type WSMessageType =
   | "error"
   | "connected"
   | "presence"
+  | "presence_request"
   | "typing"
   | "quote_request"
   | "notification";

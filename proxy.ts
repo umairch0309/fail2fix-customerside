@@ -40,11 +40,14 @@ const authRoutes = ["/login", "/signup"];
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Stripe returns here after payment — must work without a session cookie
+  const isPaymentSuccessRoute = /^\/quotes\/[^/]+\/success\/?$/.test(pathname);
+
   // Check route types
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
+  const isProtectedRoute =
+    !isPaymentSuccessRoute &&
+    protectedRoutes.some((route) => pathname.startsWith(route));
 
   // Skip session check if not an auth or protected route
   if (!isAuthRoute && !isProtectedRoute) {

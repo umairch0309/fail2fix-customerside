@@ -84,7 +84,7 @@ export interface QuotePaymentStatus {
 export interface VerifyCheckoutResponse {
   status: "paid" | "unpaid" | "open";
   quoteId: string;
-  customerId: string;
+  customerId?: string;
   paymentType: PaymentType;
 }
 

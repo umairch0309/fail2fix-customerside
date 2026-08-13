@@ -106,7 +106,7 @@ export function PendingQuoteResume() {
           notes: pending.notes,
         };
 
-        const result = await apiPost<CreateRequestWithDefectsResponse>(
+        await apiPost<CreateRequestWithDefectsResponse>(
           "/api/vehicles/submit-selection",
           payload,
         );
@@ -117,8 +117,7 @@ export function PendingQuoteResume() {
         await queryClient.invalidateQueries({ queryKey: queryKeys.requests.all });
 
         toast.success(
-          result.message ||
-            "We've received your quote request and will get back to you shortly.",
+          "Quote request submitted. You can view it from your dashboard.",
         );
         router.replace("/requests");
       } catch (error) {

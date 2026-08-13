@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { toast } from "@/components/ui/sonner";
-import { WS_URL } from "@/lib/constants";
+import { buildAuthenticatedWsUrl, fetchWsTicket } from "@/lib/ws-ticket";
 import { playNotificationSound } from "@/lib/notification-sound";
 import type { WSMessage, ChatPayload, ConnectionPayload, PresencePayload, TypingPayload, QuoteRequestPayload, NotificationPayload } from "@/types/websocket";
 
@@ -54,6 +54,8 @@ export type WebSocketStore = WebSocketState & WebSocketActions;
 
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectAttempts = 0;
+let allowReconnect = true;
+let connectInFlight = false;
 const MAX_RECONNECT_ATTEMPTS = 5;
 const BASE_RECONNECT_MS = 3000;
 
@@ -67,6 +69,7 @@ function clearReconnectTimer() {
 }
 
 function scheduleReconnect(connect: () => void) {
+  if (!allowReconnect) return;
   if (reconnectAttempts >= MAX_RECONNECT_ATTEMPTS) {
     console.warn(
       "[WS] Giving up reconnect after",
@@ -104,20 +107,49 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
   // Connect to WebSocket
   connect: () => {
+    void (async () => {
     const { socket } = get();
 
     // Don't connect on server or if already connected
     if (typeof window === "undefined") return;
-    if (socket?.readyState === WebSocket.OPEN) return;
+    if (socket?.readyState === WebSocket.OPEN || socket?.readyState === WebSocket.CONNECTING) return;
+    if (connectInFlight) return;
+
+    connectInFlight = true;
+    allowReconnect = true;
+    clearReconnectTimer();
+    set({ state: "connecting" });
+
+    let ticket: string | null;
+    try {
+      ticket = await fetchWsTicket();
+    } catch (error) {
+      console.warn("[WS] Ticket request failed:", error);
+      connectInFlight = false;
+      set({ state: "error" });
+      scheduleReconnect(() => get().connect());
+      return;
+    }
+
+    if (!ticket) {
+      connectInFlight = false;
+      set({ state: "disconnected" });
+      console.warn("[WS] No session — skip connect");
+      return;
+    }
+
+    if (!allowReconnect) {
+      connectInFlight = false;
+      return;
+    }
 
     // Close existing
     if (socket) {
       socket.close();
     }
 
-    set({ state: "connecting" });
-
-    const ws = new WebSocket(WS_URL);
+    const ws = new WebSocket(buildAuthenticatedWsUrl(ticket));
+    connectInFlight = false;
 
     ws.onopen = () => {
       reconnectAttempts = 0;
@@ -256,8 +288,9 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
     ws.onclose = () => {
       set({ state: "disconnected", socket: null, connectionId: null });
-      // Back off — endless reconnects on Vercel burn the API rate limit
-      scheduleReconnect(() => get().connect());
+      if (allowReconnect) {
+        scheduleReconnect(() => get().connect());
+      }
     };
 
     ws.onerror = () => {
@@ -265,11 +298,13 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     };
 
     set({ socket: ws });
+    })();
   },
 
   // Disconnect
   disconnect: () => {
     const { socket } = get();
+    allowReconnect = false;
     clearReconnectTimer();
     reconnectAttempts = 0;
     if (socket) {

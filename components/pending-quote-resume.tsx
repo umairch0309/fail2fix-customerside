@@ -63,8 +63,9 @@ export function PendingQuoteResume() {
       try {
         toast.info("Submitting your repair quote request...");
 
+        const cleanVrm = pending.vrm.toUpperCase().replace(/\s+/g, "");
         const lookup = await apiGet<VrmLookupResponse>(
-          `/api/vehicles/lookup/${encodeURIComponent(pending.vrm)}`,
+          `/api/vehicles/lookup/${encodeURIComponent(cleanVrm)}`,
         );
 
         const textSet = new Set(

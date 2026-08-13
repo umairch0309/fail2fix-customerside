@@ -15,8 +15,9 @@ export function useVrmLookup() {
   return useMutation({
     mutationFn: async (vrm: string): Promise<VrmLookupResponse> => {
       try {
+        const cleanVrm = vrm.toUpperCase().replace(/\s+/g, "");
         return await apiGet<VrmLookupResponse>(
-          `/api/vehicles/lookup/${encodeURIComponent(vrm)}`,
+          `/api/vehicles/lookup/${encodeURIComponent(cleanVrm)}`,
         );
       } catch (error) {
         if (error instanceof ApiError && error.status === 404) {

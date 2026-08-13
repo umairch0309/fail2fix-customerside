@@ -63,7 +63,10 @@ export async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await fetch(`${API_URL}${path}`, {
+  // Browser: same-origin /api/* (Next proxy) so the login cookie is sent.
+  // Server: call the backend URL directly.
+  const apiBase = typeof window !== "undefined" ? "" : API_URL.replace(/\/$/, "");
+  const response = await fetch(`${apiBase}${path}`, {
     credentials: "include",
     ...options,
     headers: {

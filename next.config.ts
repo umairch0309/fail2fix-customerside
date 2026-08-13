@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "motion", "date-fns"],
   },
-  // Auth is proxied via app/api/auth/[...path]/route.ts (more reliable than rewrites on Vercel).
+  // /api/auth/* and other /api/* are proxied via app/api route handlers.
 };
 
 export default nextConfig;

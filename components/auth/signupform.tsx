@@ -90,6 +90,7 @@ const Signupform = () => {
         description="Sign up to get MOT repair quotes from trusted garages"
       />
       <form
+        autoComplete="off"
         onSubmit={(e) => {
           e.preventDefault();
           form.handleSubmit();
@@ -145,6 +146,7 @@ const Signupform = () => {
                     id={field.name}
                     name={field.name}
                     type="email"
+                    autoComplete="off"
                     placeholder="Enter your email"
                     className="h-12"
                     value={field.state.value}
@@ -175,6 +177,7 @@ const Signupform = () => {
                   <Password
                     id={field.name}
                     name={field.name}
+                    autoComplete="new-password"
                     placeholder="Create a password"
                     className="h-12"
                     value={field.state.value}

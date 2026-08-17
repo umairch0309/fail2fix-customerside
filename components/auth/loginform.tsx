@@ -124,6 +124,7 @@ const Loginform = () => {
         description="Sign in to manage your MOT repairs and get instant garage quotes"
       />
       <form
+        autoComplete="off"
         onSubmit={(e) => {
           e.preventDefault();
           form.handleSubmit();
@@ -148,6 +149,7 @@ const Loginform = () => {
                     id={field.name}
                     name={field.name}
                     type="email"
+                    autoComplete="off"
                     placeholder="Enter your email"
                     className="h-12"
                     value={field.state.value}
@@ -186,6 +188,7 @@ const Loginform = () => {
                   <Password
                     id={field.name}
                     name={field.name}
+                    autoComplete="off"
                     placeholder="Enter your password"
                     className="h-12"
                     value={field.state.value}

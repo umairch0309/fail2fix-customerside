@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { hasSessionCookie } from "./lib/proxy-utils";
+import { clearCustomerAuthCookies, hasSessionCookie } from "./lib/proxy-utils";
 
 /**
  * Next.js Proxy for Better Auth (Separate Backend Architecture)
@@ -60,17 +60,10 @@ export async function proxy(request: NextRequest) {
   const hasSession = hasSessionCookie(cookieHeader);
   const forceLogin = request.nextUrl.searchParams.get("forceLogin") === "1";
 
-  // Stale / wrong-role cookie: clear and show login
+  // Stale / wrong-role cookie: clear and show login or signup
   if (isAuthRoute && forceLogin) {
     const response = NextResponse.next();
-    response.cookies.set("customer-auth.session_token", "", {
-      path: "/",
-      maxAge: 0,
-    });
-    response.cookies.set("customer-auth.session_data", "", {
-      path: "/",
-      maxAge: 0,
-    });
+    clearCustomerAuthCookies(response);
     return response;
   }
 

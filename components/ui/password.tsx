@@ -13,6 +13,7 @@ interface PasswordProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  autoComplete?: string;
   "aria-invalid"?: boolean;
 }
 
@@ -25,6 +26,7 @@ export default function Password({
   placeholder = "Enter your password",
   className,
   disabled,
+  autoComplete = "off",
   "aria-invalid": ariaInvalid,
 }: PasswordProps) {
   const generatedId = useId();
@@ -44,6 +46,7 @@ export default function Password({
         onChange={(e) => onChange?.(e.target.value)}
         onBlur={onBlur}
         aria-invalid={ariaInvalid}
+        autoComplete={autoComplete}
         className={className}
         disabled={disabled}
       />

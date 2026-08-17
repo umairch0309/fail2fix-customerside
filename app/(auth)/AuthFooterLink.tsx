@@ -43,16 +43,23 @@ export default function AuthFooterLink() {
   const email = searchParams.get("email");
   const name = searchParams.get("name");
   const callbackUrl = searchParams.get("callbackUrl");
+  const forceLogin = searchParams.get("forceLogin");
   if (email) preserved.set("email", email);
   if (name) preserved.set("name", name);
   if (callbackUrl) preserved.set("callbackUrl", callbackUrl);
+  // Keep forceLogin so /signup is not redirected to /dashboard by a stale cookie
+  if (forceLogin === "1") preserved.set("forceLogin", "1");
   const query = preserved.toString();
   const href = query ? `${displayLink.href}?${query}` : displayLink.href;
 
   return (
     <p className="text-sm text-center text-[#838383]">
       {displayLink.text}{' '}
-      <Link href={href} className="text-[#F15D1E] font-medium hover:underline">
+      <Link
+        href={href}
+        prefetch={false}
+        className="text-[#F15D1E] font-medium hover:underline"
+      >
         {displayLink.linkText}
       </Link>
     </p>

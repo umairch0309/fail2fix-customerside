@@ -54,3 +54,38 @@ export function getSessionCookieValue(
   const match = cookieHeader.match(/customer-auth\.session_token=([^;]+)/);
   return match?.[1] ?? null;
 }
+
+const CUSTOMER_AUTH_COOKIE_NAMES = [
+  "customer-auth.session_token",
+  "customer-auth.session_data",
+  "__Secure-customer-auth.session_token",
+  "__Secure-customer-auth.session_data",
+];
+
+/**
+ * Expire customer session cookies. Must match production attributes
+ * (Secure + SameSite=None, optional __Secure- prefix) or the browser
+ * will keep the stale cookie and auth pages bounce back to /login.
+ */
+export function clearCustomerAuthCookies(response: {
+  cookies: { set: (name: string, value: string, options: Record<string, unknown>) => void };
+}): void {
+  const attributeSets: Record<string, unknown>[] = [
+    { path: "/", maxAge: 0 },
+    { path: "/", maxAge: 0, secure: true, sameSite: "none" },
+    { path: "/", maxAge: 0, secure: true, sameSite: "lax" },
+    {
+      path: "/",
+      maxAge: 0,
+      secure: true,
+      sameSite: "none",
+      domain: ".fail2fix.co.uk",
+    },
+  ];
+
+  for (const name of CUSTOMER_AUTH_COOKIE_NAMES) {
+    for (const attrs of attributeSets) {
+      response.cookies.set(name, "", attrs);
+    }
+  }
+}

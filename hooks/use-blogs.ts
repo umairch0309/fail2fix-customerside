@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@/lib/query-keys";
 import { BLOG_CMS_URL } from "@/lib/constants";
 import type { Blog, BlogsResponse, BlogMedia } from "@/types/blog";
-//ello
+//how the day
 /**
  * Blog Hooks
  * Fetches blog content from Payload CMS

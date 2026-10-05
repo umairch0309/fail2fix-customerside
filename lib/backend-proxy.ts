@@ -38,11 +38,21 @@ export async function proxyToBackend(
       "user-agent",
       "accept",
       "accept-language",
-      "x-forwarded-for",
-      "x-real-ip",
     ]) {
       const value = request.headers.get(name);
       if (value) headers.set(name, value);
+    }
+
+    // Always forward a real client IP. Without this, Render/Hostinger proxies
+    // make Better Auth + Hono share one rate-limit bucket → production 429s.
+    const clientIp =
+      request.headers.get("cf-connecting-ip")?.trim() ||
+      request.headers.get("x-real-ip")?.trim() ||
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+    if (clientIp) {
+      headers.set("cf-connecting-ip", clientIp);
+      headers.set("x-real-ip", clientIp);
+      headers.set("x-forwarded-for", clientIp);
     }
 
     const proto =

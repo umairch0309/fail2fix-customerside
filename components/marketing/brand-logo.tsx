@@ -29,9 +29,9 @@ const sizeConfig = {
     className: "max-h-11 sm:max-h-12",
   },
   header: {
-    width: 420,
-    height: 120,
-    className: "max-h-[4.75rem] w-auto sm:max-h-[5.5rem] md:max-h-24",
+    width: 360,
+    height: 100,
+    className: "max-h-16 w-auto sm:max-h-[4.5rem] md:max-h-20",
   },
   footer: {
     width: 280,

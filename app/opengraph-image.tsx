@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
 
-export const alt = "Fail2Fix — UK's Managed MOT Repair Service";
+export const alt = "Fail2Fix — UK's #1 Managed MOT Repair Service";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -46,7 +46,7 @@ export default async function OpenGraphImage() {
             lineHeight: 1.4,
           }}
         >
-          UK&apos;s Managed MOT Repair Service · Call 020 4541 4102
+          UK&apos;s #1 Managed MOT Repair Service · Call 020 4541 4102
         </div>
       </div>
     ),

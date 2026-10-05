@@ -145,7 +145,7 @@ const jetbrainsMono = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL("https://fail2fix.co.uk"),
   title: {
-    default: "Fail2Fix — UK's Managed MOT Repair Service",
+    default: "Fail2Fix — UK's #1 Managed MOT Repair Service",
     template: "%s | Fail2Fix",
   },
   description:

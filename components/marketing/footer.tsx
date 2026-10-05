@@ -22,9 +22,9 @@ const Footer = () => {
       <div className="landing-container">
         <div className="grid gap-8 border-b border-cream/12 pb-8 sm:grid-cols-2 lg:grid-cols-5">
           <div className="sm:col-span-2 lg:col-span-1">
-            <BrandLogo size="default" />
+            <BrandLogo light size="footer" />
             <p className="mt-3.5 max-w-[280px] text-[0.85rem] sm:text-[0.88rem]">
-              The UK&apos;s managed MOT repair service — collection, repair
+              The UK&apos;s #1 managed MOT repair service — collection, repair
               management, and return. No hassle.
             </p>
           </div>

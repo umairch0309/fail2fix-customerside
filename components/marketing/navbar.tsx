@@ -37,8 +37,8 @@ const Navbar = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-line bg-cream">
-      <nav className="landing-container flex items-center justify-between gap-2 py-3.5 sm:gap-3 sm:py-[18px]">
-        <BrandLogo className="min-w-0 shrink" size="header" />
+      <nav className="landing-container flex items-center justify-between gap-2 py-4 sm:gap-3 sm:py-5">
+        <BrandLogo className="min-w-0 shrink-0" size="header" />
 
         <PhoneLink
           source="navbar_desktop"

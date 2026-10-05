@@ -15,7 +15,7 @@ export function buildHomepageSchema() {
     logo: `${SITE_URL}${FAIL2FIX_LOGO}`,
     telephone: PHONE_DISPLAY,
     description:
-      "The UK's managed MOT repair service. We collect your vehicle, manage the repair, and return it complete.",
+      "The UK's #1 managed MOT repair service. We collect your vehicle, manage the repair, and return it complete.",
   };
 
   const localBusiness = {

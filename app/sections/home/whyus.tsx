@@ -103,7 +103,7 @@ const Whyus = () => {
           <span className="landing-tag">Why Fail2Fix</span>
           <h2 className="landing-heading">Why Choose Fail2Fix?</h2>
           <p className="mt-3 text-[0.92rem] text-landing-slate sm:text-[0.98rem]">
-            The UK&apos;s managed MOT repair service — we handle everything so
+            The UK&apos;s #1 managed MOT repair service — we handle everything so
             you don&apos;t have to.
           </p>
         </div>

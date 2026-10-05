@@ -26,13 +26,13 @@ const Faqs = dynamic(() => import("@/app/sections/home/faqs"));
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Fail2Fix — UK's Managed MOT Repair Service",
+  title: "Fail2Fix — UK's #1 Managed MOT Repair Service",
   description: `Failed your MOT? Fail2Fix collects your vehicle, manages the repair, and returns it complete. Call ${PHONE_DISPLAY}. ${COLLECTION_DISCLAIMER}`,
   alternates: {
     canonical: SITE_URL,
   },
   openGraph: {
-    title: "Fail2Fix — UK's Managed MOT Repair Service",
+    title: "Fail2Fix — UK's #1 Managed MOT Repair Service",
     description: `Failed your MOT? We collect, manage the repair, and return your vehicle. Call ${PHONE_DISPLAY}.`,
     url: SITE_URL,
     siteName: "Fail2Fix",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Fail2Fix — UK's Managed MOT Repair Service",
+    title: "Fail2Fix — UK's #1 Managed MOT Repair Service",
     description: `Failed your MOT? We collect, manage the repair, and return your vehicle. Call ${PHONE_DISPLAY}.`,
   },
 };

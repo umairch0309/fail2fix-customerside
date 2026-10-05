@@ -9,6 +9,7 @@ import { gsap, useGSAP } from "@/components/animations/gsap-setup";
 import { BrandOrbGlow } from "@/components/animations/brand-orb-glow";
 import OrbitField from "@/components/animations/orbit-field";
 import {
+  BRAND_TAGLINE_SHORT,
   PAYMENT_ASSIST_TAGLINE,
   PHONE_DISPLAY,
   TRUST_MESSAGING_ITEMS,
@@ -168,7 +169,7 @@ const Hero = () => {
               data-hero-copy
               className="mb-3 inline-flex items-center gap-2 font-jetbrains text-[0.7rem] tracking-[0.08em] text-amber uppercase before:inline-block before:h-1.5 before:w-1.5 before:rounded-full before:bg-amber before:content-[''] sm:mb-[18px] sm:text-[0.75rem]"
             >
-              UK&apos;s managed MOT repair service
+              {BRAND_TAGLINE_SHORT}
             </span>
 
             <h1

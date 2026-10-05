@@ -4,7 +4,12 @@ export const PHONE_DISPLAY = "020 4541 4102";
 export const PHONE_TEL = "tel:+442045414102";
 export const PHONE_HOURS = "Mon–Fri | 08:30am – 5:30pm";
 
-export const FAIL2FIX_LOGO = "/Fail2Fix_logo-removebg-preview.png";
+export const FAIL2FIX_LOGO = "/images/fail2fix-logo-navy.png";
+/** White wordmark for dark backgrounds (footer, etc.) */
+export const FAIL2FIX_LOGO_WHITE = "/images/fail2fix-logo-white.png";
+
+export const BRAND_TAGLINE = "UK's #1 Managed MOT Repair Service";
+export const BRAND_TAGLINE_SHORT = "UK's #1 managed MOT repair service";
 
 export const COLLECTION_DISCLAIMER =
   "Free local collection & delivery subject to location, availability and booking criteria.";
@@ -13,7 +18,7 @@ export const PAYMENT_ASSIST_TAGLINE =
   "Spread the cost with Payment Assist (subject to approval).";
 
 export const TRUST_MESSAGING_ITEMS = [
-  "UK Managed MOT Repair Service",
+  "UK's #1 Managed MOT Repair Service",
   "Secure Online Payments",
   "Transparent Quotes",
   "Vetted Repair Network",
@@ -23,7 +28,7 @@ export const TRUST_MESSAGING_ITEMS = [
 ] as const;
 
 export const TRUST_BAR_ITEMS = [
-  "UK Managed MOT Repair Service",
+  "UK's #1 Managed MOT Repair Service",
   "Transparent Quotes",
   "Payment Assist Available",
   "Only 10% Deposit Required",

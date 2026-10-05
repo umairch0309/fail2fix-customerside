@@ -1,16 +1,20 @@
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { FAIL2FIX_LOGO } from "@/lib/marketing/constants";
+import {
+  FAIL2FIX_LOGO,
+  FAIL2FIX_LOGO_WHITE,
+  BRAND_TAGLINE,
+} from "@/lib/marketing/constants";
 
 interface BrandLogoProps {
   className?: string;
-  /** @deprecated All branding now uses the official logo image */
+  /** White logo for dark backgrounds */
   light?: boolean;
   /** Override logo source — defaults to official Fail2Fix logo */
   src?: string;
   /** Logo display size */
-  size?: "compact" | "default" | "header";
+  size?: "compact" | "default" | "header" | "footer";
 }
 
 const sizeConfig = {
@@ -25,24 +29,31 @@ const sizeConfig = {
     className: "max-h-11 sm:max-h-12",
   },
   header: {
-    width: 260,
+    width: 420,
+    height: 120,
+    className: "max-h-[4.75rem] w-auto sm:max-h-[5.5rem] md:max-h-24",
+  },
+  footer: {
+    width: 280,
     height: 72,
-    className: "max-h-11 w-auto sm:max-h-14 md:max-h-16",
+    className: "max-h-14 w-auto sm:max-h-16 md:max-h-[4.5rem]",
   },
 } as const;
 
 export function BrandLogo({
   className,
-  src = FAIL2FIX_LOGO,
+  light = false,
+  src,
   size = "default",
 }: BrandLogoProps) {
   const config = sizeConfig[size];
+  const logoSrc = src ?? (light ? FAIL2FIX_LOGO_WHITE : FAIL2FIX_LOGO);
 
   return (
     <Link href="/" className={cn("flex min-w-0 items-center", className)}>
       <Image
-        src={src}
-        alt="Fail2Fix — UK's Managed MOT Repair Service"
+        src={logoSrc}
+        alt={`Fail2Fix — ${BRAND_TAGLINE}`}
         width={config.width}
         height={config.height}
         className={cn(

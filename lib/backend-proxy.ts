@@ -43,14 +43,14 @@ export async function proxyToBackend(
       if (value) headers.set(name, value);
     }
 
-    // Always forward a real client IP. Without this, Render/Hostinger proxies
-    // make Better Auth + Hono share one rate-limit bucket → production 429s.
+    // Forward the real client IP for rate limiting.
+    // Never send CF-Connecting-IP upstream: Cloudflare returns Error 1000
+    // when a proxied origin (e.g. *.onrender.com) receives that header.
     const clientIp =
       request.headers.get("cf-connecting-ip")?.trim() ||
       request.headers.get("x-real-ip")?.trim() ||
       request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
     if (clientIp) {
-      headers.set("cf-connecting-ip", clientIp);
       headers.set("x-real-ip", clientIp);
       headers.set("x-forwarded-for", clientIp);
     }
@@ -83,6 +83,27 @@ export async function proxyToBackend(
 
     const upstream = await fetch(target, init);
     const body = await upstream.arrayBuffer();
+
+    // Surface Cloudflare Error 1000 clearly instead of a raw HTML 403.
+    const contentType = upstream.headers.get("content-type") || "";
+    if (
+      upstream.status === 403 &&
+      contentType.includes("text/html")
+    ) {
+      const preview = new TextDecoder().decode(body.slice(0, 500));
+      if (preview.includes("DNS points to prohibited IP") || preview.includes("cf-error")) {
+        console.error("[api-proxy] Cloudflare blocked upstream request to", target);
+        return Response.json(
+          {
+            error: "CLOUDFLARE_BLOCKED",
+            message:
+              "API proxy was blocked by Cloudflare (Error 1000). Do not forward CF-Connecting-IP to *.onrender.com, or use a non-Cloudflare API URL.",
+          },
+          { status: 502 },
+        );
+      }
+    }
+
     const responseHeaders = new Headers();
 
     upstream.headers.forEach((value, key) => {

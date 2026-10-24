@@ -1,4 +1,7 @@
-FROM oven/bun:alpine AS base
+# Base: real Node 22.23.4, with the Bun binary copied in for installs
+FROM node:22.23.4-alpine AS base
+RUN apk add --no-cache libstdc++ libgcc
+COPY --from=oven/bun:1-alpine /usr/local/bin/bun /usr/local/bin/bun
 
 # Stage 1: Install dependencies
 FROM base AS deps
@@ -16,13 +19,15 @@ COPY . .
 
 RUN bun run build
 
-# Stage 3: Production server
-FROM base AS runner
+# Stage 3: Production server (Node only, no Bun needed)
+FROM node:22.23.4-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV=Production
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
 EXPOSE 3000
-CMD ["bun", "run", "server.js"]
+CMD ["node", "server.js"]

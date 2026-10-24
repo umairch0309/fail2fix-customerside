@@ -37,6 +37,7 @@ import {
 } from "@/lib/pending-quote";
 import { useSession } from "@/lib/auth-client";
 import { validateUkPostcode, isValidUkPostcode } from "@/lib/uk-postcode";
+import { validateUkVrm, isValidUkVrm } from "@/lib/uk-vrm";
 import type { VrmLookupResponse, MotDefectWithPricing } from "@/types/vehicle";
 import { defectTypeConfig } from "@/types/vehicle";
 import { toast } from "@/components/ui/sonner";
@@ -131,6 +132,24 @@ export function PopupContactForm({
     onSubmit: async ({ value }) => {
       if (vrmLookup.isPending) return;
 
+      const missing: string[] = [];
+      if (!value.name.trim()) missing.push("name");
+      if (!value.email.trim()) missing.push("email");
+      if (!value.phone.trim()) missing.push("phone number");
+      if (!isValidUkPostcode(value.postcode)) {
+        missing.push("a valid UK postcode (e.g. SW1A 1AA)");
+      }
+      if (!value.vrm.trim() || !isValidUkVrm(value.vrm)) {
+        missing.push("a valid UK vehicle registration (e.g. AB12 CDE)");
+      }
+      if (!value.agreeTerms) missing.push("the contact authorization checkbox");
+
+      if (missing.length > 0) {
+        void form.validateAllFields("submit");
+        toast.error(`Please fix: ${missing.join(", ")}.`);
+        return;
+      }
+
       vrmLookup.mutate(value.vrm, {
         onSuccess: (data) => {
           setDefectsData(data);
@@ -170,6 +189,7 @@ export function PopupContactForm({
 
     if (!isValidUkPostcode(formValues.postcode)) {
       setStep(1);
+      toast.error("Please enter a valid UK postcode (e.g. SW1A 1AA).");
       return;
     }
 
@@ -594,11 +614,12 @@ export function PopupContactForm({
                     <form.Field
                       name="vrm"
                       validators={{
-                        onBlur: ({ value }) => {
-                          if (!value.trim()) return "Vehicle registration is required";
-                          if (value.trim().length < 2) return "Please enter a valid registration";
-                          return undefined;
+                        onBlur: ({ value }) => validateUkVrm(value),
+                        onChange: ({ value }) => {
+                          if (value.trim().length < 4) return undefined;
+                          return validateUkVrm(value);
                         },
+                        onSubmit: ({ value }) => validateUkVrm(value),
                       }}
                       children={(field) => (
                         <Field className="w-full flex flex-col gap-2">
@@ -818,34 +839,44 @@ export function PopupContactForm({
 
                 {/* Continue button */}
                 <form.Subscribe
-                  selector={(state) => [state.canSubmit, state.values]}
-                  children={([canSubmit, values]) => {
-                    const allFieldsFilled =
-                      typeof values !== "boolean" &&
+                  selector={(state) => state.values}
+                  children={(values) => {
+                    const postcodeOk = isValidUkPostcode(values.postcode);
+                    const vrmOk = isValidUkVrm(values.vrm);
+                    const ready =
                       values.name.trim() !== "" &&
                       values.email.trim() !== "" &&
                       values.phone.trim() !== "" &&
-                      isValidUkPostcode(values.postcode) &&
-                      values.vrm.trim() !== "" &&
+                      postcodeOk &&
+                      vrmOk &&
                       values.agreeTerms === true;
 
                     return (
-                      <CustomButton
-                        type="submit"
-                        fullWidth
-                        normalColor="#ED5616"
-                        textColor="white"
-                        className="py-6"
-                        disabled={
-                          !allFieldsFilled ||
-                          !canSubmit ||
-                          vrmLookup.isPending
-                        }
-                        loading={vrmLookup.isPending}
-                        loadingText="Looking up vehicle..."
-                      >
-                        Continue
-                      </CustomButton>
+                      <div className="flex flex-col gap-2">
+                        {!ready && !vrmLookup.isPending && (
+                          <p className="text-center text-xs text-[#7F8282]">
+                            {!postcodeOk && values.postcode.trim()
+                              ? "Enter a valid UK postcode (e.g. SW1A 1AA) to continue."
+                              : !vrmOk && values.vrm.trim()
+                                ? "Enter a valid UK vehicle registration (e.g. AB12 CDE)."
+                                : !values.agreeTerms
+                                  ? "Tick the contact authorization checkbox, then continue."
+                                  : "Fill in all required fields to continue."}
+                          </p>
+                        )}
+                        <CustomButton
+                          type="submit"
+                          fullWidth
+                          normalColor="#ED5616"
+                          textColor="white"
+                          className="py-6"
+                          disabled={vrmLookup.isPending}
+                          loading={vrmLookup.isPending}
+                          loadingText="Looking up vehicle..."
+                        >
+                          Continue
+                        </CustomButton>
+                      </div>
                     );
                   }}
                 />
